@@ -10,7 +10,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Commands\" />
       <Folder Include="Keys\" />
     </ItemGroup>
 

@@ -2,8 +2,11 @@ using CLI.Enums;
 
 namespace CLI.Abstractions;
 
-public class KeyBase
+public abstract class KeyBase
 {
+    /// <summary>
+    /// /wdawdwadawdadwa
+    /// </summary>
     public string ShortName { get; set; }
     
     public CommandKey KeyName;

@@ -9,7 +9,7 @@ public abstract class KeyBase
     /// </summary>
     public string ShortName { get; set; }
     
-    public CommandKey KeyName;
+    public string KeyName;
     
     public bool ValueIsRequired { get; set; }
 }

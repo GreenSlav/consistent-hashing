@@ -6,6 +6,9 @@ namespace CLI.Commands;
 [Obsolete]
 public class RestartCommand : CommandBase
 {
+    public RestartCommand(Dictionary<string, string> dict) : base(dict)
+    {}
+    
     /// <inheritdoc />
     public override string Name { get; }
     
@@ -25,5 +28,13 @@ public class RestartCommand : CommandBase
     public override string ExpectedValue { get; }
     
     /// <inheritdoc />
+    public override string Value { get; }
+    
+    /// <inheritdoc />
     public override string[] Examples { get; }
+
+    public override Task ExecuteAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

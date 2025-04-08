@@ -7,6 +7,13 @@ namespace CLI.Abstractions;
 /// </summary>
 public abstract class CommandBase
 {
+    public Dictionary<string, string> _keyAndValues;
+
+    public CommandBase(Dictionary<string, string> keyAndValues)
+    {
+        _keyAndValues = keyAndValues;
+    }
+    
     /// <summary>
     /// Название команды
     /// </summary>
@@ -38,7 +45,18 @@ public abstract class CommandBase
     public abstract string ExpectedValue { get; }
     
     /// <summary>
+    /// Переданное значение
+    /// </summary>
+    public abstract string Value { get; }
+    
+    /// <summary>
     /// Примеры использования
     /// </summary>
     public abstract string[] Examples { get; }
+    
+    public abstract Task ExecuteAsync();
+
+    public virtual void PrintUsage()
+    {
+    }
 }

@@ -8,6 +8,9 @@ namespace CLI.Commands;
 /// </summary>
 public class KillCommand : CommandBase
 {
+    public KillCommand(Dictionary<string, string> dict) : base(dict)
+    {}
+    
     /// <inheritdoc />
     public override string Name { get; } = "kill";
 
@@ -27,5 +30,13 @@ public class KillCommand : CommandBase
     public override string ExpectedValue { get; } = "Идентификатор диспетчера";
     
     /// <inheritdoc />
+    public override string Value { get; }
+    
+    /// <inheritdoc />
     public override string[] Examples { get; }
+
+    public override Task ExecuteAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -8,6 +8,9 @@ namespace CLI.Commands;
 /// </summary>
 public class ConnectCommand : CommandBase
 {
+    public ConnectCommand(Dictionary<string, string> dict) : base(dict)
+    {}
+    
     /// <inheritdoc />
     public override string Name { get; } = "connect";
 
@@ -25,7 +28,15 @@ public class ConnectCommand : CommandBase
 
     /// <inheritdoc />
     public override string ExpectedValue { get; } = "Идентификатор диспетчера, к которому подключаемся";
-    
+
+    /// <inheritdoc />
+    public override string Value { get; }
+
     /// <inheritdoc />
     public override string[] Examples { get; }
+
+    public override Task ExecuteAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

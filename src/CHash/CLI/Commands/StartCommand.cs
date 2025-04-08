@@ -8,6 +8,9 @@ namespace CLI.Commands;
 /// </summary>
 public class StartCommand : CommandBase
 {
+    public StartCommand(Dictionary<string, string> dict) : base(dict)
+    {}
+    
     /// <inheritdoc />
     public override string Name { get; } = "start";
 
@@ -27,5 +30,13 @@ public class StartCommand : CommandBase
     public override string ExpectedValue { get; } = string.Empty;
     
     /// <inheritdoc />
+    public override string Value { get; }
+    
+    /// <inheritdoc />
     public override string[] Examples { get; }
+
+    public override Task ExecuteAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

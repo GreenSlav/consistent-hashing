@@ -8,6 +8,9 @@ namespace CLI.Commands;
 /// </summary>
 public class DisconnectCommand : CommandBase
 {
+    public DisconnectCommand(Dictionary<string, string> dict) : base(dict)
+    {}
+    
     /// <inheritdoc />
     public override string Name { get; } = "disconnect";
 
@@ -27,5 +30,13 @@ public class DisconnectCommand : CommandBase
     public override string ExpectedValue { get; } = string.Empty;
     
     /// <inheritdoc />
+    public override string Value { get; }
+    
+    /// <inheritdoc />
     public override string[] Examples { get; }
+
+    public override Task ExecuteAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

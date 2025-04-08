@@ -15,10 +15,10 @@ public class DisconnectCommand : CommandBase
     public override string Description { get; } = "Отключение от конкретного диспетчера";
     
     /// <inheritdoc />
-    public override CommandKey[] AllowedKeys { get; }
+    public override string[] AllowedKeys { get; }
     
     /// <inheritdoc />
-    public override CommandKey[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; }
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = false;

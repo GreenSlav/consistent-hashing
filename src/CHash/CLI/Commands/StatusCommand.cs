@@ -15,10 +15,10 @@ public class StatusCommand : CommandBase
     public override string Description { get; } = "Показывает статус конкретного диспетчера";
     
     /// <inheritdoc />
-    public override CommandKey[] AllowedKeys { get; }
+    public override string[] AllowedKeys { get; }
     
     /// <inheritdoc />
-    public override CommandKey[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; }
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = true;

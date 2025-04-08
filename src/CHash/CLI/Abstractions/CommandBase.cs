@@ -20,12 +20,12 @@ public abstract class CommandBase
     /// <summary>
     /// Разрешенные ключи
     /// </summary>
-    public abstract CommandKey[] AllowedKeys { get; }
+    public abstract string[] AllowedKeys { get; }
     
     /// <summary>
     /// Обязательные ключи
     /// </summary>
-    public abstract CommandKey[] RequiredKeys { get; }
+    public abstract string[] RequiredKeys { get; }
     
     /// <summary>
     /// Обязательное ли значение

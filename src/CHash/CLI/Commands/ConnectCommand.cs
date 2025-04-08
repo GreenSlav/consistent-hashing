@@ -1,5 +1,4 @@
 using CLI.Abstractions;
-using CLI.Enums;
 
 namespace CLI.Commands;
 
@@ -8,8 +7,11 @@ namespace CLI.Commands;
 /// </summary>
 public class ConnectCommand : CommandBase
 {
-    public ConnectCommand(Dictionary<string, string> dict) : base(dict)
-    {}
+    /// <inheritdoc />
+    public override string? Value { get; set; }
+    
+    /// <inheritdoc />
+    public override Dictionary<string, string>? KeyAndValues { get; set; }
     
     /// <inheritdoc />
     public override string Name { get; } = "connect";
@@ -18,10 +20,10 @@ public class ConnectCommand : CommandBase
     public override string Description { get; } = "На постоянной основе подключиться к определенному диспетчеру";
     
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; }
+    public override string[] AllowedKeys { get; } = [];
     
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; } = [];
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = true;
@@ -30,11 +32,13 @@ public class ConnectCommand : CommandBase
     public override string ExpectedValue { get; } = "Идентификатор диспетчера, к которому подключаемся";
 
     /// <inheritdoc />
-    public override string Value { get; }
+    public override string[] Examples { get; } = [];
 
     /// <inheritdoc />
-    public override string[] Examples { get; }
+    public override Type CommandType { get; } = typeof(ConnectCommand);
 
+
+    /// <inheritdoc />
     public override Task ExecuteAsync()
     {
         throw new NotImplementedException();

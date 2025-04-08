@@ -8,20 +8,23 @@ namespace CLI.Commands;
 /// </summary>
 public class StartCommand : CommandBase
 {
-    public StartCommand(Dictionary<string, string> dict) : base(dict)
-    {}
+    /// <inheritdoc />
+    public override string? Value { get; set; }
+    
+    /// <inheritdoc />
+    public override Dictionary<string, string>? KeyAndValues { get; set; }
     
     /// <inheritdoc />
     public override string Name { get; } = "start";
 
     /// <inheritdoc />
     public override string Description { get; } = "Запуск нового экземпляра диспетчера";
-    
+
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; }
-    
+    public override string[] AllowedKeys { get; } = [];
+
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; } = [];
     
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = false;
@@ -30,10 +33,10 @@ public class StartCommand : CommandBase
     public override string ExpectedValue { get; } = string.Empty;
     
     /// <inheritdoc />
-    public override string Value { get; }
+    public override string[] Examples { get; } = [];
     
     /// <inheritdoc />
-    public override string[] Examples { get; }
+    public override Type CommandType { get; } = typeof(StartCommand);
 
     public override Task ExecuteAsync()
     {

@@ -8,8 +8,11 @@ namespace CLI.Commands;
 /// </summary>
 public class DisconnectCommand : CommandBase
 {
-    public DisconnectCommand(Dictionary<string, string> dict) : base(dict)
-    {}
+    /// <inheritdoc />
+    public override string? Value { get; set; }
+    
+    /// <inheritdoc />
+    public override Dictionary<string, string>? KeyAndValues { get; set; }
     
     /// <inheritdoc />
     public override string Name { get; } = "disconnect";
@@ -18,10 +21,10 @@ public class DisconnectCommand : CommandBase
     public override string Description { get; } = "Отключение от конкретного диспетчера";
     
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; }
+    public override string[] AllowedKeys { get; } = [];
     
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; } = [];
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = false;
@@ -30,10 +33,10 @@ public class DisconnectCommand : CommandBase
     public override string ExpectedValue { get; } = string.Empty;
     
     /// <inheritdoc />
-    public override string Value { get; }
+    public override string[] Examples { get; } = [];
     
     /// <inheritdoc />
-    public override string[] Examples { get; }
+    public override Type CommandType { get; } = typeof(DisconnectCommand);
 
     public override Task ExecuteAsync()
     {

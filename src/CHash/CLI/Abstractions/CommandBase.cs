@@ -7,12 +7,15 @@ namespace CLI.Abstractions;
 /// </summary>
 public abstract class CommandBase
 {
-    public Dictionary<string, string> _keyAndValues;
-
-    public CommandBase(Dictionary<string, string> keyAndValues)
-    {
-        _keyAndValues = keyAndValues;
-    }
+    /// <summary>
+    /// Переданное значение
+    /// </summary>
+    public abstract string? Value { get; set; }
+    
+    /// <summary>
+    /// Словарь ключей к команде и их значений
+    /// </summary>
+    public abstract Dictionary<string, string>? KeyAndValues { get; set; }
     
     /// <summary>
     /// Название команды
@@ -45,18 +48,30 @@ public abstract class CommandBase
     public abstract string ExpectedValue { get; }
     
     /// <summary>
-    /// Переданное значение
-    /// </summary>
-    public abstract string Value { get; }
-    
-    /// <summary>
     /// Примеры использования
     /// </summary>
     public abstract string[] Examples { get; }
     
+    
+    /// <summary>
+    /// Тип команды
+    /// </summary>
+    public abstract Type CommandType { get; }
+    
+    /// <summary>
+    /// Что необходимо выполнить в ответ на команду
+    /// </summary>
+    /// <returns></returns>
     public abstract Task ExecuteAsync();
 
+    /// <summary>
+    /// Вывод примеров использования
+    /// </summary>
     public virtual void PrintUsage()
     {
+        foreach (var example in Examples)
+        {
+            Console.WriteLine(example);
+        }
     }
 }

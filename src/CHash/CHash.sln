@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dispatcher", "Dispatcher\Dispatcher.csproj", "{C9EF784F-8201-458B-A27F-CBE4D2701688}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI", "CLI\CLI.csproj", "{6569C831-C33E-444C-A3EC-D991394B4BEB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9EF784F-8201-458B-A27F-CBE4D2701688}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9EF784F-8201-458B-A27F-CBE4D2701688}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9EF784F-8201-458B-A27F-CBE4D2701688}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9EF784F-8201-458B-A27F-CBE4D2701688}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6569C831-C33E-444C-A3EC-D991394B4BEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6569C831-C33E-444C-A3EC-D991394B4BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6569C831-C33E-444C-A3EC-D991394B4BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6569C831-C33E-444C-A3EC-D991394B4BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

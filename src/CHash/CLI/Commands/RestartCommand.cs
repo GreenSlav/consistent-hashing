@@ -16,10 +16,20 @@ public class RestartCommand : CommandBase
     public override string Description { get; }
     
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; }
+    public override string[] AllowedKeys { get; } = 
+    {
+        CommandKey.Name,
+        CommandKey.Port,
+        CommandKey.Config
+    };
+
     
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; } = 
+    {
+        CommandKey.Name
+    };
+
     
     /// <inheritdoc />
     public override bool ValueIsRequired { get; }
@@ -31,7 +41,11 @@ public class RestartCommand : CommandBase
     public override string Value { get; }
     
     /// <inheritdoc />
-    public override string[] Examples { get; }
+    public override string[] Examples { get; } = 
+    {
+        "restart -n dispatcher1",
+        "restart -n dispatcher2 -p 8080 -c config.json"
+    };
 
     public override Task ExecuteAsync()
     {

@@ -16,12 +16,19 @@ public class DisconnectCommand : CommandBase
 
     /// <inheritdoc />
     public override string Description { get; } = "Отключение от конкретного диспетчера";
-    
+
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; }
-    
+    public override string[] AllowedKeys { get; } =
+    {
+        CommandKey.Name,
+        CommandKey.Port
+    };
+
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; } =
+    {
+        CommandKey.Name
+    };
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = false;
@@ -31,10 +38,13 @@ public class DisconnectCommand : CommandBase
     
     /// <inheritdoc />
     public override string Value { get; }
-    
-    /// <inheritdoc />
-    public override string[] Examples { get; }
 
+    /// <inheritdoc />
+    public override string[] Examples { get; } =
+    {
+        "disconnect -n dispatcher1",
+        "disconnect -n dispatcher2 -p 8080"
+    };
     public override Task ExecuteAsync()
     {
         throw new NotImplementedException();

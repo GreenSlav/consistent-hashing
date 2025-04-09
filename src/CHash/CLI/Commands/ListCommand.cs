@@ -16,9 +16,14 @@ public class ListCommand : CommandBase
 
     /// <inheritdoc />
     public override string Description { get; } = "Список запущенных диспетчеров";
-    
+
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; }
+    public override string[] AllowedKeys { get; } =
+    {
+        CommandKey.Port,
+        CommandKey.Name
+
+    };
     
     /// <inheritdoc />
     public override string[] RequiredKeys { get; }
@@ -31,9 +36,14 @@ public class ListCommand : CommandBase
     
     /// <inheritdoc />
     public override string Value { get; }
-    
+
     /// <inheritdoc />
-    public override string[] Examples { get; }
+    public override string[] Examples { get; } =
+    {
+        "list",
+        "list -n dispatcher1",
+        "list -p 8080"
+    };
 
     public override Task ExecuteAsync()
     {

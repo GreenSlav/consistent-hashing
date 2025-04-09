@@ -18,10 +18,19 @@ public class StartCommand : CommandBase
     public override string Description { get; } = "Запуск нового экземпляра диспетчера";
     
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; }
+    public override string[] AllowedKeys { get; } = 
+    {
+        CommandKey.Port,
+        CommandKey.Name,
+        CommandKey.Config
+    };
     
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; }
+    public override string[] RequiredKeys { get; } = 
+    {
+        CommandKey.Port,
+        CommandKey.Name
+    };
     
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = false;
@@ -33,7 +42,11 @@ public class StartCommand : CommandBase
     public override string Value { get; }
     
     /// <inheritdoc />
-    public override string[] Examples { get; }
+    public override string[] Examples { get; } = 
+    {
+        "start -n dispatcher1 -p 8080",
+        "start -n dispatcher2 -p 9090 -c config.json"
+    };
 
     public override Task ExecuteAsync()
     {

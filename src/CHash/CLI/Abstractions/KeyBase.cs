@@ -10,5 +10,5 @@ public abstract class KeyBase
     
     public bool ValueIsRequired { get; set; }
     
-    public string Value { get; set; }
+    public string ExpectedValue { get; set; }
 }

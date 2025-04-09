@@ -9,8 +9,4 @@
         <PublishAot>true</PublishAot>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Keys\" />
-    </ItemGroup>
-
 </Project>

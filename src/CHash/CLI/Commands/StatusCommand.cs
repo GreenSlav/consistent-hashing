@@ -21,10 +21,17 @@ public class StatusCommand : CommandBase
     public override string Description { get; } = "Показывает статус конкретного диспетчера";
     
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; } = [];
+    public override string[] AllowedKeys { get; } = 
+    {
+        CommandKey.Name,
+        CommandKey.Port
+    };
     
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; } = [];
+    public override string[] RequiredKeys { get; } = 
+    {
+        CommandKey.Name
+    };
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = true;
@@ -36,6 +43,11 @@ public class StatusCommand : CommandBase
     public override string[] Examples { get; } = [];
     
     /// <inheritdoc />
+    public override string[] Examples { get; } = 
+    {
+        "status -n dispatcher1",
+        "status -n dispatcher2 -p 8080"
+    };
     public override Type CommandType { get; } = typeof(StatusCommand);
 
     public override Task ExecuteAsync()

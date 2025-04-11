@@ -10,8 +10,4 @@
         <PublishTrimmed>false</PublishTrimmed>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="Keys\" />
-    </ItemGroup>
-
 </Project>

@@ -19,12 +19,19 @@ public class KillCommand : CommandBase
 
     /// <inheritdoc />
     public override string Description { get; } = "Остановить экземпляр диспетчера";
-    
+
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; } = [];
-    
+    public override string[] AllowedKeys { get; } =
+    {
+        CommandKey.Name,
+        CommandKey.Port
+    };
+
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; } = [];
+    public override string[] RequiredKeys { get; } =
+    {
+        CommandKey.Name
+    };
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = true;
@@ -33,10 +40,14 @@ public class KillCommand : CommandBase
     public override string ExpectedValue { get; } = "Идентификатор диспетчера";
     
     /// <inheritdoc />
-    public override string[] Examples { get; } = [];
-    
+    public override string Value { get; }
+
     /// <inheritdoc />
-    public override Type CommandType { get; } = typeof(KillCommand);
+    public override string[] Examples { get; } =
+    {
+        "kill -n dispatcher1",
+        "kill -n dispatcher2 -p 8080"
+    };
 
     public override Task ExecuteAsync()
     {

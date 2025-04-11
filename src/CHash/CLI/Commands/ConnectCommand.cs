@@ -18,12 +18,22 @@ public class ConnectCommand : CommandBase
 
     /// <inheritdoc />
     public override string Description { get; } = "На постоянной основе подключиться к определенному диспетчеру";
+
+    /// <inheritdoc />
+    public override string[] AllowedKeys { get; } =
+    {
+        CommandKey.Port,
+        CommandKey.Name,
+        CommandKey.Config
+    };
     
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; } = [];
-    
-    /// <inheritdoc />
-    public override string[] RequiredKeys { get; } = [];
+    public override string[] RequiredKeys { get; } = 
+    {
+        CommandKey.Port,
+        CommandKey.Name
+    };
+
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = true;
@@ -35,7 +45,12 @@ public class ConnectCommand : CommandBase
     public override string[] Examples { get; } = [];
 
     /// <inheritdoc />
-    public override Type CommandType { get; } = typeof(ConnectCommand);
+    public override string[] Examples { get; } = 
+    {
+        "connect -n dispatcher1 -p 8080",
+        "connect -c config.json -n dispatcher2 -p 9090"
+    };
+
 
 
     /// <inheritdoc />

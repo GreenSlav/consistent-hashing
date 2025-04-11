@@ -37,8 +37,6 @@ public class ListCommand : CommandBase
     /// <inheritdoc />
     public override string ExpectedValue { get; } = string.Empty;
     
-    /// <inheritdoc />
-    public override string Value { get; }
 
     /// <inheritdoc />
     public override string[] Examples { get; } =
@@ -47,7 +45,6 @@ public class ListCommand : CommandBase
         "list -n dispatcher1",
         "list -p 8080"
     };
-    public override string[] Examples { get; } = [];
     
     /// <inheritdoc />
     public override Type CommandType { get; } = typeof(ListCommand);

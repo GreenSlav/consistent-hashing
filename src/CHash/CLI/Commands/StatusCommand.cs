@@ -40,9 +40,6 @@ public class StatusCommand : CommandBase
     public override string ExpectedValue { get; } = "Идентификатор диспетчера";
     
     /// <inheritdoc />
-    public override string[] Examples { get; } = [];
-    
-    /// <inheritdoc />
     public override string[] Examples { get; } = 
     {
         "status -n dispatcher1",

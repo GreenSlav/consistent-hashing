@@ -42,9 +42,6 @@ public class StartCommand : CommandBase
     public override string ExpectedValue { get; } = string.Empty;
     
     /// <inheritdoc />
-    public override string[] Examples { get; } = [];
-    
-    /// <inheritdoc />
     public override string[] Examples { get; } = 
     {
         "start -n dispatcher1 -p 8080",

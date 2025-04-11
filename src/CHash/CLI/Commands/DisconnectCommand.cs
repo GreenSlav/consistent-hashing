@@ -40,10 +40,6 @@ public class DisconnectCommand : CommandBase
     public override string ExpectedValue { get; } = string.Empty;
     
     /// <inheritdoc />
-    public override string Value { get; }
-    public override string[] Examples { get; } = [];
-    
-    /// <inheritdoc />
     public override Type CommandType { get; } = typeof(DisconnectCommand);
 
     /// <inheritdoc />

@@ -40,14 +40,13 @@ public class KillCommand : CommandBase
     public override string ExpectedValue { get; } = "Идентификатор диспетчера";
     
     /// <inheritdoc />
-    public override string Value { get; }
-
-    /// <inheritdoc />
     public override string[] Examples { get; } =
     {
         "kill -n dispatcher1",
         "kill -n dispatcher2 -p 8080"
     };
+
+    public override Type CommandType { get; } = typeof(KillCommand);
 
     public override Task ExecuteAsync()
     {

@@ -1,4 +1,5 @@
 using CLI.Abstractions;
+using CLI.Enums;
 
 namespace CLI.Commands;
 
@@ -40,10 +41,7 @@ public class ConnectCommand : CommandBase
 
     /// <inheritdoc />
     public override string ExpectedValue { get; } = "Идентификатор диспетчера, к которому подключаемся";
-
-    /// <inheritdoc />
-    public override string[] Examples { get; } = [];
-
+    
     /// <inheritdoc />
     public override string[] Examples { get; } = 
     {
@@ -51,6 +49,7 @@ public class ConnectCommand : CommandBase
         "connect -c config.json -n dispatcher2 -p 9090"
     };
 
+    public override Type CommandType { get; } = typeof(ConnectCommand);
 
 
     /// <inheritdoc />

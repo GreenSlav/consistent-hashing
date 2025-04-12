@@ -1,6 +1,7 @@
 using System.Xml;
 using CLI.Abstractions;
 using CLI.Enums;
+using CLI.Keys;
 
 namespace CLI.Commands;
 
@@ -11,7 +12,7 @@ public class RestartCommand : CommandBase
     public override string? Value { get; set; }
 
     /// <inheritdoc />
-    public override Dictionary<string, string>? KeyAndValues { get; set; }
+    public override Dictionary<string, string?>? KeyAndValues { get; set; }
 
     /// <inheritdoc />
     public override string Name { get; }
@@ -20,18 +21,18 @@ public class RestartCommand : CommandBase
     public override string Description { get; }
 
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; } =
+    public override KeyBase[] AllowedKeys { get; } =
     {
-        CommandKey.Name,
-        CommandKey.Port,
-        CommandKey.Config
+        new ConfigKey(),
+        new NameConfigKey(),
+        new PortConfigKey(),
     };
 
 
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; } =
+    public override KeyBase[] RequiredKeys { get; } =
     {
-        CommandKey.Name
+        new NameConfigKey(),
     };
 
     /// <inheritdoc />

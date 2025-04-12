@@ -1,5 +1,6 @@
 using CLI.Abstractions;
 using CLI.Enums;
+using CLI.Keys;
 
 namespace CLI.Commands;
 
@@ -12,7 +13,7 @@ public class ListCommand : CommandBase
     public override string? Value { get; set; }
     
     /// <inheritdoc />
-    public override Dictionary<string, string>? KeyAndValues { get; set; }
+    public override Dictionary<string, string?>? KeyAndValues { get; set; }
     
     /// <inheritdoc />
     public override string Name { get; } = "list";
@@ -21,15 +22,14 @@ public class ListCommand : CommandBase
     public override string Description { get; } = "Список запущенных диспетчеров";
 
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; } =
+    public override KeyBase[] AllowedKeys { get; } =
     {
-        CommandKey.Port,
-        CommandKey.Name
-
+        new NameConfigKey(),
+        new PortConfigKey(),
     };
     
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; } = [];
+    public override KeyBase[] RequiredKeys { get; } = [];
 
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = false;

@@ -6,13 +6,6 @@
         {
             // TODO: Добавить DI
             
-            // string[] testArgs1 = 
-            // {
-            //     "connect", 
-            //     "--dispatcher-name", "TestDispatcher", 
-            //     "--port", "5001", 
-            //     "--config", "config.json"
-            // };
             var command = new CommandLineParser().Parse(args);
 
             if (command is not null)

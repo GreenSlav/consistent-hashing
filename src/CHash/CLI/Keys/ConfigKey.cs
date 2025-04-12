@@ -7,7 +7,7 @@ public class ConfigKey: KeyBase
 {
     public ConfigKey()
     {
-        ShortName = "-c";
+        ShortName = "c";
         KeyName = CommandKey.Config;
         ValueIsRequired = false;
         ExpectedValue = "path";

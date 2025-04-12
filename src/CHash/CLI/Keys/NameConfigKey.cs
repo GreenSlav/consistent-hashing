@@ -7,7 +7,7 @@ public class NameConfigKey: ConfigKey
 {
     public NameConfigKey()
     {
-        ShortName = "-n";
+        ShortName = "n";
         KeyName = CommandKey.Name;
         ValueIsRequired = true;
         ExpectedValue = "string";

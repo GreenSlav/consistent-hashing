@@ -15,7 +15,7 @@ public abstract class CommandBase
     /// <summary>
     /// Словарь ключей к команде и их значений
     /// </summary>
-    public abstract Dictionary<string, string>? KeyAndValues { get; set; }
+    public abstract Dictionary<string, string?>? KeyAndValues { get; set; }
     
     /// <summary>
     /// Название команды
@@ -30,12 +30,12 @@ public abstract class CommandBase
     /// <summary>
     /// Разрешенные ключи
     /// </summary>
-    public abstract string[] AllowedKeys { get; }
+    public abstract KeyBase[] AllowedKeys { get; }
     
     /// <summary>
     /// Обязательные ключи
     /// </summary>
-    public abstract string[] RequiredKeys { get; }
+    public abstract KeyBase[] RequiredKeys { get; }
     
     /// <summary>
     /// Обязательное ли значение

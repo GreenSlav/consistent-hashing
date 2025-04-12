@@ -1,5 +1,6 @@
 using CLI.Abstractions;
 using CLI.Enums;
+using CLI.Keys;
 
 namespace CLI.Commands;
 
@@ -12,7 +13,7 @@ public class KillCommand : CommandBase
     public override string? Value { get; set; }
     
     /// <inheritdoc />
-    public override Dictionary<string, string>? KeyAndValues { get; set; }
+    public override Dictionary<string, string?>? KeyAndValues { get; set; }
     
     /// <inheritdoc />
     public override string Name { get; } = "kill";
@@ -21,16 +22,16 @@ public class KillCommand : CommandBase
     public override string Description { get; } = "Остановить экземпляр диспетчера";
 
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; } =
+    public override KeyBase[] AllowedKeys { get; } =
     {
-        CommandKey.Name,
-        CommandKey.Port
+        new NameConfigKey(),
+        new PortConfigKey(),
     };
 
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; } =
+    public override KeyBase[] RequiredKeys { get; } =
     {
-        CommandKey.Name
+        new NameConfigKey(),
     };
 
     /// <inheritdoc />

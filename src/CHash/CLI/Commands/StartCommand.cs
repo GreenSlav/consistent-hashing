@@ -1,5 +1,6 @@
 using CLI.Abstractions;
 using CLI.Enums;
+using CLI.Keys;
 
 namespace CLI.Commands;
 
@@ -10,10 +11,10 @@ public class StartCommand : CommandBase
 {
     /// <inheritdoc />
     public override string? Value { get; set; }
-    
+
     /// <inheritdoc />
-    public override Dictionary<string, string>? KeyAndValues { get; set; }
-    
+    public override Dictionary<string, string?>? KeyAndValues { get; set; }
+
     /// <inheritdoc />
     public override string Name { get; } = "start";
 
@@ -21,32 +22,33 @@ public class StartCommand : CommandBase
     public override string Description { get; } = "Запуск нового экземпляра диспетчера";
 
     /// <inheritdoc />
-    public override string[] AllowedKeys { get; } = 
+    public override KeyBase[] AllowedKeys { get; } =
     {
-        CommandKey.Port,
-        CommandKey.Name,
-        CommandKey.Config
+        new ConfigKey(),
+        new NameConfigKey(),
+        new PortConfigKey(),
     };
-    
+
     /// <inheritdoc />
-    public override string[] RequiredKeys { get; } = 
+    public override KeyBase[] RequiredKeys { get; } =
     {
-        CommandKey.Port,
-        CommandKey.Name
+        new NameConfigKey(),
+        new PortConfigKey(),
     };
-    
+
     /// <inheritdoc />
     public override bool ValueIsRequired { get; } = false;
-    
+
     /// <inheritdoc />
     public override string ExpectedValue { get; } = string.Empty;
-    
+
     /// <inheritdoc />
-    public override string[] Examples { get; } = 
+    public override string[] Examples { get; } =
     {
         "start -n dispatcher1 -p 8080",
         "start -n dispatcher2 -p 9090 -c config.json"
     };
+
     public override Type CommandType { get; } = typeof(StartCommand);
 
     public override Task ExecuteAsync()

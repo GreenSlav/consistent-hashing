@@ -1,22 +1,31 @@
-﻿namespace CLI
+﻿using Grpc.Net.Client;
+using ProtosInterfaceDispatcher.Shared;
+
+namespace CLI
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            // TODO: Добавить DI
+            // // TODO: Добавить DI
+            //
+            // var command = new CommandLineParser().Parse(args);
+            //
+            // if (command is not null)
+            // {
+            //     Console.WriteLine(command!.Name);
+            //     Console.WriteLine(command!.Description);
+            //     foreach (var pair in command!.KeyAndValues!)
+            //     {
+            //         Console.WriteLine(pair.Key + " = " + pair.Value);
+            //     }
+            // }
             
-            var command = new CommandLineParser().Parse(args);
+            var channel = GrpcChannel.ForAddress("https://localhost:7194");
+            var client = new GreeterTest.GreeterTestClient(channel);
 
-            if (command is not null)
-            {
-                Console.WriteLine(command!.Name);
-                Console.WriteLine(command!.Description);
-                foreach (var pair in command!.KeyAndValues!)
-                {
-                    Console.WriteLine(pair.Key + " = " + pair.Value);
-                }
-            }
+            var reply = await client.SayHelloTestAsync(new HelloRequestTest { Name = "Тестовый клиент" });
+            Console.WriteLine($"Ответ от сервера: {reply.Message}");
         }
     }
 }

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "ProtosInterfaceDispatcher.Shared";
+
+package greeter_test;
+
+service GreeterTest {
+  rpc SayHelloTest (HelloRequestTest) returns (HelloReplyTest);
+}
+
+message HelloRequestTest {
+  string name = 1;
+}
+
+message HelloReplyTest {
+  string message = 1;
+}

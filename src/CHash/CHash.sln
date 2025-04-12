@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashingNode", "HashingNode\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{3638054C-A384-45D2-A208-0D75183F011C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtosInterfaceDispatcher.Shared", "ProtosInterfaceDispatcher.Shared\ProtosInterfaceDispatcher.Shared.csproj", "{1CAFB353-87E6-4DE2-A0E6-5392EE08C0B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{3638054C-A384-45D2-A208-0D75183F011C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3638054C-A384-45D2-A208-0D75183F011C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3638054C-A384-45D2-A208-0D75183F011C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CAFB353-87E6-4DE2-A0E6-5392EE08C0B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CAFB353-87E6-4DE2-A0E6-5392EE08C0B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CAFB353-87E6-4DE2-A0E6-5392EE08C0B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CAFB353-87E6-4DE2-A0E6-5392EE08C0B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

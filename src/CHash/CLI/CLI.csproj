@@ -10,4 +10,8 @@
         <PublishTrimmed>false</PublishTrimmed>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
+    </ItemGroup>
+
 </Project>

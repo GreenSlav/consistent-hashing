@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dispatcher", "Dispatcher\Di
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CLI", "CLI\CLI.csproj", "{6569C831-C33E-444C-A3EC-D991394B4BEB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashingNode", "HashingNode\HashingNode.csproj", "{AECB5188-CECA-47BF-97E5-EA467A9C320C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{3638054C-A384-45D2-A208-0D75183F011C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{6569C831-C33E-444C-A3EC-D991394B4BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6569C831-C33E-444C-A3EC-D991394B4BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6569C831-C33E-444C-A3EC-D991394B4BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AECB5188-CECA-47BF-97E5-EA467A9C320C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AECB5188-CECA-47BF-97E5-EA467A9C320C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AECB5188-CECA-47BF-97E5-EA467A9C320C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AECB5188-CECA-47BF-97E5-EA467A9C320C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3638054C-A384-45D2-A208-0D75183F011C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3638054C-A384-45D2-A208-0D75183F011C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3638054C-A384-45D2-A208-0D75183F011C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3638054C-A384-45D2-A208-0D75183F011C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,9 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
-using CLI.Abstractions;
-using CLI.Commands;
-using CLI.Exceptions;
-using CLI.Utils;
+using Core.Abstractions;
+using Core.Exceptions;
 
 namespace CLI
 {

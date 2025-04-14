@@ -42,8 +42,8 @@ namespace Core.Commands
 
         public override string[] Examples { get; } =
         {
-            "start -n dispatcher1 -p 8080 -d C:\\Path\\To\\Dispatcher.exe",
-            "start -n dispatcher2 -p 9090 -d /usr/local/bin/dispatcher"
+            "start -p 8080 -d C:\\Path\\To\\Dispatcher.exe",
+            "start -p 9090 -b -d /usr/local/bin/dispatcher"
         };
 
         public override Type CommandType { get; } = typeof(StartCommand);
@@ -85,7 +85,7 @@ namespace Core.Commands
 
             // Формируем аргументы для запуска диспетчера.
             // Обычно указывают порт через параметр --urls (например, для Kestrel).
-            string urlsArg = $"--urls=http://localhost:{port}";
+            string urlsArg = $"--urls=https://localhost:{port}";
             string arguments = urlsArg;
 
             // Настраиваем параметры процесса для запуска диспетчера.

@@ -2,17 +2,14 @@ using Dispatcher.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Добавляем gRPC-сервисы
 builder.Services.AddGrpc();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-//app.MapGrpcService<GreeterService>();
+// Регистрируем gRPC сервис диспетчера (например, GreeterTestService)
 app.MapGrpcService<GreeterTestService>();
 
-app.MapGet("/",
-    () =>
-        "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+app.MapGet("/", () => "gRPC endpoints доступны через специализированный клиент. Подробнее: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 app.Run();

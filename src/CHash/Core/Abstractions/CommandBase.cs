@@ -13,7 +13,7 @@ public abstract class CommandBase
     /// <summary>
     /// Словарь ключей к команде и их значений
     /// </summary>
-    public abstract Dictionary<string, string?>? KeyAndValues { get; set; }
+    public abstract IEnumerable<KeyValuePair<KeyBase, string?>> KeyAndValues { get; set; }
     
     /// <summary>
     /// Название команды

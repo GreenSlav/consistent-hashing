@@ -1,14 +1,16 @@
-﻿using Core.Enums;
+﻿using Core.Abstractions;
+using Core.Enums;
 
 namespace Core.Keys;
 
-public class NameConfigKey: ConfigKey
+[Obsolete]
+public abstract class NameConfigKey : KeyBase
 {
-    public NameConfigKey()
-    {
-        ShortName = "n";
-        KeyName = CommandKey.Name;
-        ValueIsRequired = true;
-        ExpectedValue = "string";
-    }
+    // public NameConfigKey()
+    // {
+    //     ShortName = "n";
+    //     KeyName = CommandKey.Name;
+    //     ValueIsRequired = true;
+    //     ExpectedValue = "string";
+    // }
 }

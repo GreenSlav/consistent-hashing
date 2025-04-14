@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option csharp_namespace = "ProtosInterfaceDispatcher.Protos";
+
+package dispatcher;
+
+// Сервис для управления узлами в хэш-кольце.
+service Dispatcher {
+  // Создание нового узла в хэш-кольце.
+  // Если preferred_port не указан или равен 0, диспетчер выберет свободный порт.
+  rpc CreateNode (CreateNodeRequest) returns (CreateNodeResponse);
+
+  // Удаление узла по его уникальному идентификатору.
+  rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse);
+
+  // Опциональный метод для получения списка узлов.
+  rpc ListNodes (ListNodesRequest) returns (ListNodesResponse);
+}
+
+// Запрос на создание узла.
+// Поле preferred_port является опциональным: значение 0 означает, что порт не задан.
+message CreateNodeRequest {
+  int32 preferred_port = 1; // Порт, который хотел бы указать клиент (0 - не указан)
+  // Можно добавить здесь и другие опциональные параметры, например, количество виртуальных узлов
+  // int32 virtual_nodes = 2;
+}
+
+// Ответ на запрос создания узла.
+message CreateNodeResponse {
+  bool success = 1;           // Успешно ли создан узел
+  string node_id = 2;         // Уникальный идентификатор созданного узла
+  int32 port = 3;             // Фактически выбранный порт, на котором запущен узел
+  string message = 4;         // Дополнительное сообщение или описание ошибки
+}
+
+// Запрос на удаление узла. Требуется передать уникальный идентификатор.
+message DeleteNodeRequest {
+  string node_id = 1;
+}
+
+// Ответ на запрос удаления узла.
+message DeleteNodeResponse {
+  bool success = 1;           // Удалён ли узел успешно
+  string message = 2;         // Дополнительное сообщение
+}
+
+// Запрос для получения списка зарегистрированных узлов (опционально)
+message ListNodesRequest {
+  // Пустое сообщение; можно расширять при необходимости.
+}
+
+// Информация об узле.
+message NodeInfo {
+  string node_id = 1;
+  int32 port = 2;
+  // Можно добавить дополнительные поля, например, состояние, время запуска и т.п.
+}
+
+// Ответ для метода ListNodes.
+message ListNodesResponse {
+  repeated NodeInfo nodes = 1;
+}

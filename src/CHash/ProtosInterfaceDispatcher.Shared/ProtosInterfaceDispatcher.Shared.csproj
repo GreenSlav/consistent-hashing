@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <Protobuf Include="GreeterTest.proto" GrpcServices="None" />
+        <Protobuf Include="Dispatcher.proto" GrpcServices="None" />
     </ItemGroup>
 
 </Project>

@@ -45,7 +45,7 @@ namespace CLI
                               ?? throw new Exception("Команда не найдена");
 
                 // Собираем ключи и значения в словарь.
-                var keyAndValues = new Dictionary<string, string?>();
+                var dictKeyAndValue = new Dictionary<string, string?>();
                 for (int i = 1; i < args.Length; i++)
                 {
                     if (i == args.Length - 1 && command.ValueIsRequired)
@@ -69,7 +69,7 @@ namespace CLI
 
                         if (!keyFromAssembly.ValueIsRequired)
                         {
-                            keyAndValues[key] = null;
+                            dictKeyAndValue[key] = null;
                             continue;
                         }
 
@@ -83,7 +83,7 @@ namespace CLI
                         if (value is null)
                             throw new KeyValueRequiredException($"Key \'{key}\' value is required");
 
-                        keyAndValues[key] = value;
+                        dictKeyAndValue[key] = value;
                     }
 
                     if (args[i].StartsWith("-") && args[i].Length == 2)
@@ -100,7 +100,7 @@ namespace CLI
 
                         if (!keyFromAssembly.ValueIsRequired)
                         {
-                            keyAndValues[key] = null;
+                            dictKeyAndValue[key] = null;
                             continue;
                         }
 
@@ -114,7 +114,7 @@ namespace CLI
                         if (value is null)
                             throw new KeyValueRequiredException($"Key \'{key}\' value is required");
 
-                        keyAndValues[key] = value;
+                        dictKeyAndValue[key] = value;
                     }
                 }
 
@@ -124,11 +124,15 @@ namespace CLI
 
                 foreach (var requiredKey in command.RequiredKeys)
                 {
-                    if (!keyAndValues
+                    if (!dictKeyAndValue
                             .Any(x => x.Key == requiredKey.KeyName || x.Key == requiredKey.ShortName))
                         throw new KeyRequiredException($"Key \'{requiredKey}\' is missing");
                 }
-
+                
+                var keyAndValuesToSet = dictKeyAndValue
+                    .Select(x => new KeyValuePair<KeyBase, string?>(_keysAvailable
+                        .First(y => y.KeyName == x.Key || y.ShortName == x.Key), x.Value));
+                
                 // Создаём экземпляр нужной команды через Reflection.
                 // Конструктор команды ожидает Dictionary<string, string>.
                 var commandInstance = Activator.CreateInstance(command.CommandType) as CommandBase;
@@ -138,7 +142,7 @@ namespace CLI
                 }
 
                 commandInstance.Value = commandArgumentValue;
-                commandInstance.KeyAndValues = keyAndValues;
+                commandInstance.KeyAndValues = keyAndValuesToSet;
 
                 return commandInstance;
             }

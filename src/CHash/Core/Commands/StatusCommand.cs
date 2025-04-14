@@ -12,7 +12,7 @@ public class StatusCommand : CommandBase
     public override string? Value { get; set; }
     
     /// <inheritdoc />
-    public override Dictionary<string, string?>? KeyAndValues { get; set; }
+    public override required IEnumerable<KeyValuePair<KeyBase, string?>> KeyAndValues { get; set; }
     
     /// <inheritdoc />
     public override string Name { get; } = "status";
@@ -23,14 +23,12 @@ public class StatusCommand : CommandBase
     /// <inheritdoc />
     public override KeyBase[] AllowedKeys { get; } = 
     {
-        new NameConfigKey(),
-        new PortConfigKey(),
+        new DispatcherPortKey(),
     };
     
     /// <inheritdoc />
     public override KeyBase[] RequiredKeys { get; } = 
     {
-        new NameConfigKey(),
     };
 
     /// <inheritdoc />

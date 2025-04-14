@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\GreeterTest.proto" GrpcServices="Client" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\Dispatcher.proto" GrpcServices="Client" />
     </ItemGroup>
 
     <ItemGroup>

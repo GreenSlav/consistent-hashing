@@ -12,7 +12,7 @@ public class ListCommand : CommandBase
     public override string? Value { get; set; }
     
     /// <inheritdoc />
-    public override Dictionary<string, string?>? KeyAndValues { get; set; }
+    public override required IEnumerable<KeyValuePair<KeyBase, string?>> KeyAndValues { get; set; }
     
     /// <inheritdoc />
     public override string Name { get; } = "list";
@@ -23,8 +23,7 @@ public class ListCommand : CommandBase
     /// <inheritdoc />
     public override KeyBase[] AllowedKeys { get; } =
     {
-        new NameConfigKey(),
-        new PortConfigKey(),
+        new DispatcherPortKey(),
     };
     
     /// <inheritdoc />

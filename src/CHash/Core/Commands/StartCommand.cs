@@ -57,7 +57,8 @@ namespace Core.Commands
             }
 
             // Извлекаем значение порта из словаря по ключу CommandKey.Port
-            var portEntry = KeyAndValues.FirstOrDefault(x => x.Key.KeyName == CommandKey.Port);
+            var portEntry = KeyAndValues
+                .FirstOrDefault(x => x.Key.KeyName == CommandKey.Port);
             string? portStr = portEntry.Value;
 
             if (string.IsNullOrEmpty(portStr))
@@ -66,7 +67,8 @@ namespace Core.Commands
             }
 
             // Извлекаем путь к исполняемому файлу диспетчера по ключу, определённому в PathToDispatcherKey.
-            var pathEntry = KeyAndValues.FirstOrDefault(x => x.Key.KeyName == "dispatcher-path");
+            var pathEntry = KeyAndValues
+                .FirstOrDefault(x => x.Key.KeyName == "dispatcher-path");
             string? dispatcherPath = pathEntry.Value;
 
             if (string.IsNullOrEmpty(dispatcherPath))
@@ -81,7 +83,8 @@ namespace Core.Commands
             }
 
             // Определяем, был ли передан флаг фонового режима.
-            bool runInBackground = KeyAndValues.Any(x => x.Key.KeyName == CommandKey.Background);
+            bool runInBackground = KeyAndValues
+                .Any(x => x.Key.KeyName == CommandKey.Background);
 
             // Формируем аргументы для запуска диспетчера.
             // Обычно указывают порт через параметр --urls (например, для Kestrel).

@@ -56,7 +56,8 @@ public class KillCommand : CommandBase
             throw new Exception("Не переданы параметры для команды.");
 
         // Извлекаем значение порта из коллекции (используем ключ DispatcherPortKey)
-        var portEntry = KeyAndValues.FirstOrDefault(x => x.Key.KeyName == CommandKey.Port);
+        var portEntry = KeyAndValues
+            .FirstOrDefault(x => x.Key.KeyName == CommandKey.Port);
         string? portStr = portEntry.Value;
         if (string.IsNullOrEmpty(portStr))
             throw new Exception("Не указан порт для диспетчера.");

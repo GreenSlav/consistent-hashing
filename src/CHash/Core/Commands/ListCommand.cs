@@ -49,6 +49,7 @@ public class ListCommand : CommandBase
 
     public override Task ExecuteAsync()
     {
-        throw new NotImplementedException();
+        Console.WriteLine(nameof(ListCommand));
+        return Task.CompletedTask;
     }
 }

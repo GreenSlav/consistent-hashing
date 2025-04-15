@@ -52,6 +52,7 @@ public class ConnectCommand : CommandBase
     /// <inheritdoc />
     public override Task ExecuteAsync()
     {
-        throw new NotImplementedException();
+        Console.WriteLine(nameof(ConnectCommand));
+        return Task.CompletedTask;
     }
 }

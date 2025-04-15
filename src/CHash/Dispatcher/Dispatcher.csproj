@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\GreeterTest.proto" GrpcServices="Server" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\CarEntity.proto" GrpcServices="Server" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\Dispatcher.proto" GrpcServices="Server" />
     </ItemGroup>
 

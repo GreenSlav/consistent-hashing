@@ -16,14 +16,16 @@ service Dispatcher {
 }
 
 message CreateNodeRequest {
-  int32 preferred_port = 1;
+  int32 preferred_port = 1;        // Порт, на котором должен запускаться узел
+  string node_path = 2;            // Путь к исполняемому файлу узла (опционально)
 }
 
+
 message CreateNodeResponse {
-  bool success = 1;
-  string node_id = 2;
-  int32 port = 3;
-  string message = 4;
+  bool success = 1;                // Флаг успеха
+  string node_id = 2;              // Уникальный идентификатор созданного узла (например, PID)
+  int32 port = 3;                  // Фактически выбранный порт
+  string message = 4;              // Дополнительное сообщение
 }
 
 message DeleteNodeRequest {

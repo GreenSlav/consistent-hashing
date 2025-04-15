@@ -47,6 +47,7 @@ public class RestartCommand : CommandBase
 
     public override Task ExecuteAsync()
     {
-        throw new NotImplementedException();
+        Console.WriteLine(nameof(RestartCommand));
+        return Task.CompletedTask;
     }
 }

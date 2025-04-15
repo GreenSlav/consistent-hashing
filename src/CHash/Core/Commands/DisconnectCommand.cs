@@ -48,6 +48,7 @@ public class DisconnectCommand : CommandBase
     };
     public override Task ExecuteAsync()
     {
-        throw new NotImplementedException();
+        Console.WriteLine(nameof(DisconnectCommand));
+        return Task.CompletedTask;
     }
 }

@@ -47,6 +47,7 @@ public class StatusCommand : CommandBase
 
     public override Task ExecuteAsync()
     {
-        throw new NotImplementedException();
+        Console.WriteLine(nameof(StatusCommand));
+        return Task.CompletedTask;
     }
 }

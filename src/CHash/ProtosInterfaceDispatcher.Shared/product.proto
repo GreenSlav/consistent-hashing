@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option csharp_namespace = "ProtosInterfaceDispatcher.Protos";
+
+package product;
+
+import "google/protobuf/empty.proto";
+
+message ProductDto {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+  int32 stock_quantity = 4;
+}
+
+message ProductIdRequest {
+  string id = 1;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  double price = 2;
+  int32 stock_quantity = 3;
+}
+
+message UpdateProductRequest {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+  int32 stock_quantity = 4;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+}
+
+message ProductList {
+  repeated ProductDto products = 1;
+}
+
+service ProductService {
+  rpc GetProduct(ProductIdRequest) returns (ProductDto);
+  rpc CreateProduct(CreateProductRequest) returns (ProductDto);
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductDto);
+  rpc DeleteProduct(ProductIdRequest) returns (DeleteProductResponse);
+  rpc ListProducts(google.protobuf.Empty) returns (ProductList);
+}

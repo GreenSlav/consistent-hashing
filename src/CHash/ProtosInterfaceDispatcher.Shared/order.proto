@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option csharp_namespace = "ProtosInterfaceDispatcher.Protos";
+
+package order;
+
+import "google/protobuf/empty.proto";
+
+message OrderDto {
+  string id = 1;
+  string customer_id = 2;
+  string order_date = 3;
+  double total_amount = 4;
+}
+
+message OrderIdRequest {
+  string id = 1;
+}
+
+message CreateOrderRequest {
+  string customer_id = 1;
+  string order_date = 2;
+  double total_amount = 3;
+}
+
+message UpdateOrderRequest {
+  string id = 1;
+  string customer_id = 2;
+  string order_date = 3;
+  double total_amount = 4;
+}
+
+message DeleteOrderResponse {
+  bool success = 1;
+}
+
+message OrderList {
+  repeated OrderDto orders = 1;
+}
+
+service OrderService {
+  rpc GetOrder(OrderIdRequest) returns (OrderDto);
+  rpc CreateOrder(CreateOrderRequest) returns (OrderDto);
+  rpc UpdateOrder(UpdateOrderRequest) returns (OrderDto);
+  rpc DeleteOrder(OrderIdRequest) returns (DeleteOrderResponse);
+  rpc ListOrders(google.protobuf.Empty) returns (OrderList);
+}

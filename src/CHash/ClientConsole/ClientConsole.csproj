@@ -8,7 +8,9 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\CarEntity.proto" GrpcServices="Client" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\customer.proto" GrpcServices="Client" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\order.proto" GrpcServices="Client" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Client" />
     </ItemGroup>
 
     <ItemGroup>

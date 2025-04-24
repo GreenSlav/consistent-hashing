@@ -9,6 +9,9 @@
     <ItemGroup>
         <Protobuf Include="GreeterTest.proto" GrpcServices="None" />
         <Protobuf Include="Dispatcher.proto" GrpcServices="None" />
+        <Protobuf Include="customer.proto" GrpcServices="None" />
+        <Protobuf Include="order.proto" GrpcServices="None" />
+        <Protobuf Include="product.proto" GrpcServices="None" />
     </ItemGroup>
 
 </Project>

@@ -8,8 +8,10 @@
 
     <ItemGroup>
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\GreeterTest.proto" GrpcServices="Server" />
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\CarEntity.proto" GrpcServices="Server" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\Dispatcher.proto" GrpcServices="Server" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\customer.proto" GrpcServices="Both" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\order.proto" GrpcServices="Both" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Both" />
     </ItemGroup>
 
     <ItemGroup>
@@ -18,10 +20,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ProtosInterfaceDispatcher.Shared\ProtosInterfaceDispatcher.Shared.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Protos\" />
     </ItemGroup>
 
 </Project>

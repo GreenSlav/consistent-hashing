@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Dispatcher.Helpers;
 using Grpc.Core;
 using ProtosInterfaceDispatcher.Protos;
 
@@ -8,10 +9,17 @@ namespace Dispatcher.Services
 {
     public class DispatcherService : ProtosInterfaceDispatcher.Protos.Dispatcher.DispatcherBase
     {
+        private readonly NodeRegistry _nodeRegistry;
+        
         // Коллекция для хранения информации о запущенных узлах.
         // Используем thread-safe структуру для простоты.
-        private static readonly ConcurrentDictionary<string, NodeInfo> _nodes =
-            new ConcurrentDictionary<string, NodeInfo>();
+        // private static readonly ConcurrentDictionary<string, NodeInfo> _nodes =
+        //     new ConcurrentDictionary<string, NodeInfo>();
+        
+        public DispatcherService(NodeRegistry nodeRegistry)
+        {
+            _nodeRegistry = nodeRegistry;
+        }
         
         public override async Task<ShutdownResponse> Shutdown(ShutdownRequest request, ServerCallContext context)
         {
@@ -22,10 +30,10 @@ namespace Dispatcher.Services
             };
 
             // Итерация по коллекции запущенных узлов
-            foreach (var kvp in _nodes)
+            foreach (var node in _nodeRegistry.GetAllNodes())
             {
                 // В нашем случае ключ – это PID в виде строки
-                if (int.TryParse(kvp.Key, out int pid))
+                if (int.TryParse(node.NodeId, out int pid))
                 {
                     try
                     {
@@ -49,7 +57,7 @@ namespace Dispatcher.Services
                 }
                 else
                 {
-                    Console.WriteLine($"Не удалось преобразовать идентификатор узла '{kvp.Key}' в число.");
+                    Console.WriteLine($"Не удалось преобразовать идентификатор узла '{node.NodeId}' в число.");
                 }
             }
 
@@ -119,8 +127,8 @@ namespace Dispatcher.Services
             };
 
             // Сохраняем информацию о узле.
-            _nodes[nodeId] = nodeInfo;
-
+            _nodeRegistry.AddNode(nodeInfo.NodeId, nodeInfo);
+            
             return new CreateNodeResponse
             {
                 Success = true,

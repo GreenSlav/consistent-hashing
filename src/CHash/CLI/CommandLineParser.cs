@@ -67,11 +67,12 @@ namespace CLI
                                               ?? throw new KeyNotFoundException(
                                                   $"Key \'{key}\' is not found in assembly");
 
-                        if (!keyFromAssembly.ValueIsRequired)
+                        // Если ключ не требует значения, но оно передано — ошибка.
+                        if (!keyFromAssembly.ValueIsRequired && i + 1 < args.Length && !args[i + 1].StartsWith("--") && !args[i + 1].StartsWith("-"))
                         {
-                            dictKeyAndValue[key] = null;
-                            continue;
+                            throw new ArgumentException($"Key '{key}' does not accept a value.");
                         }
+                        dictKeyAndValue[key] = null;  // Флаг без значения
 
                         // Если следующий аргумент существует и не начинается с "--", считаем его значением.
                         if (i + 1 < args.Length && !args[i + 1].StartsWith("--") && !args[i + 1].StartsWith("-"))

@@ -22,4 +22,10 @@ public class NodeRegistry
     {
         return _nodes.Values;
     }
+    
+    public bool RemoveNode(string nodeId)
+    {
+        return _nodes.TryRemove(nodeId, out _);
+    }
+
 }

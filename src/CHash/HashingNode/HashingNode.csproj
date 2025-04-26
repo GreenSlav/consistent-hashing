@@ -12,7 +12,14 @@
 
     <ItemGroup>
       <Folder Include="Protos\" />
-      <Folder Include="Services\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="../ProtosInterfaceDispatcher/Protos/product.proto" GrpcServices="Server" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Dispatcher\Dispatcher.csproj" />
     </ItemGroup>
 
 </Project>

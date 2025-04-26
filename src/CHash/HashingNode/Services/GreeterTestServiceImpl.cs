@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace HashingNode.Services;
 
 /// <summary>
-/// Тестовый сервис-приветствие для проверки работы gRPC
+/// 
 /// </summary>
 public class GreeterTestServiceImpl : GreeterTest.GreeterTestBase
 {

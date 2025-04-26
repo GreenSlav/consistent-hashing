@@ -6,8 +6,7 @@ using Google.Protobuf.WellKnownTypes;
 namespace HashingNode.Services;
 
 /// <summary>
-/// Реализация gRPC-сервиса для работы с заказами.
-/// Хранит данные в памяти в потокобезопасном словаре.
+/// Реализация gRPC-сервиса для работы с ордерами.
 /// </summary>
 public class OrderServiceImpl : ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceBase
 {
@@ -15,10 +14,10 @@ public class OrderServiceImpl : ProtosInterfaceDispatcher.Protos.OrderService.Or
 
     /// <inheritdoc/>
     /// <remarks>
-    /// Создает новый заказ со следующими характеристиками:
-    /// - Генерирует уникальный ID (Guid)
-    /// - Устанавливает текущую дату/время в формате ISO 8601
-    /// - Сохраняет переданные данные о клиенте и сумме заказа
+    /// Создает новый ордер со следующими характеристиками:
+    /// - Генерирует уникальный айдишник
+    /// - Устанавливает текущую дату и время
+    /// - Сохраняет переданные данные о клиенте и сумме ордера
     /// </remarks>
     public override Task<OrderDto> CreateOrder(CreateOrderRequest request, ServerCallContext context)
     {
@@ -52,8 +51,7 @@ public class OrderServiceImpl : ProtosInterfaceDispatcher.Protos.OrderService.Or
 
     /// <inheritdoc/>
     /// <remarks>
-    /// Внимание: Полностью заменяет все данные заказа!
-    /// Для частичного обновления рекомендуется создать отдельный метод PatchOrder.
+    /// Полностью заменяет все данные заказа!!!!!!!!!!
     /// </remarks>
     /// <exception cref="RpcException">
     /// Возникает с кодом StatusCode.NotFound (5) если заказ не существует
@@ -100,8 +98,7 @@ public class OrderServiceImpl : ProtosInterfaceDispatcher.Protos.OrderService.Or
 
     /// <inheritdoc/>
     /// <remarks>
-    /// Возвращает все заказы, имеющиеся на текущей ноде.
-    /// Для распределенных систем рекомендуется реализовать пагинацию.
+    /// Возвращает все, имеющиеся на текущей ноде.
     /// </remarks>
     public override Task<OrderList> ListOrders(Empty request, ServerCallContext context)
     {

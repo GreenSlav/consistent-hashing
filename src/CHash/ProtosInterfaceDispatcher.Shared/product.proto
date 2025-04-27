@@ -18,9 +18,10 @@ message ProductIdRequest {
 }
 
 message CreateProductRequest {
-  string name = 1;
-  double price = 2;
-  int32 stock_quantity = 3;
+  string id = 1;
+  string name = 2;
+  double price = 3;
+  int32 stock_quantity = 4;
 }
 
 message UpdateProductRequest {

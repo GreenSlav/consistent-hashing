@@ -23,7 +23,7 @@ public class CustomerServiceImpl : ProtosInterfaceDispatcher.Protos.CustomerServ
     {
         var customer = new CustomerDto
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = request.Id,
             FullName = request.FullName,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,

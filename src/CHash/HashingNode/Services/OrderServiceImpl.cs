@@ -23,7 +23,7 @@ public class OrderServiceImpl : ProtosInterfaceDispatcher.Protos.OrderService.Or
     {
         var newOrder = new OrderDto
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = request.Id,
             CustomerId = request.CustomerId,
             OrderDate = DateTime.UtcNow.ToString("O"), // ISO 8601 extended format
             TotalAmount = request.TotalAmount

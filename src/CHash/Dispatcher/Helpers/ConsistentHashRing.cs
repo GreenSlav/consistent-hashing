@@ -11,7 +11,7 @@ public class ConsistentHashRing
     {
         for (int i = 0; i < _replicas; i++)
         {
-            int pos = Hash32(node.NodeId + "#" + i);
+            int pos = HashUtils.ComputeHashCode(node.NodeId + "#" + i);
             _positions[pos] = node;
         }
     }
@@ -20,7 +20,7 @@ public class ConsistentHashRing
     {
         for (int i = 0; i < _replicas; i++)
         {
-            int pos = Hash32(node.NodeId + "#" + i);
+            int pos = HashUtils.ComputeHashCode(node.NodeId + "#" + i);
             _positions.Remove(pos);
         }
     }
@@ -28,7 +28,8 @@ public class ConsistentHashRing
     public NodeInfo GetNodeForKey(string key)
     {
         if (_positions.Count == 0) throw new InvalidOperationException("Ring is empty");
-        int hash = Hash32(key);
+        //int hash = Hash32(key);
+        int hash = HashUtils.ComputeHashCode(key);
         // ищём первый ключ >= hash, иначе берём первый в словаре
         foreach (var kv in _positions)
             if (kv.Key >= hash)
@@ -36,6 +37,7 @@ public class ConsistentHashRing
         return _positions.First().Value;
     }
 
+    [Obsolete("Используем HashUtils")]
     private static int Hash32(string s)
     {
         // любая стабильная 32-бит хэш-функция, например CRC32 или MurmurHash

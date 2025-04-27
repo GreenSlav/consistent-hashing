@@ -18,7 +18,7 @@ public class ProductServiceImpl : ProtosInterfaceDispatcher.Protos.ProductServic
     {
         var product = new ProductDto
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = request.Id,
             Name = request.Name,
             Price = request.Price,
             StockQuantity = 0 // Инициализация при создании

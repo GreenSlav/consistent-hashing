@@ -7,25 +7,28 @@ using System.Collections.Concurrent;
 public class NodeRegistry
 {
     private readonly ConcurrentDictionary<string, NodeInfo> _nodes = new();
+    private readonly ConsistentHashRing _ring = new();
 
-    public void AddNode(string nodeId, NodeInfo nodeInfo)
+    public void AddNode(string id, NodeInfo info)
     {
-        _nodes[nodeId] = nodeInfo;
+        _nodes[id] = info;
+        _ring.Add(info);
     }
 
-    public bool TryGetNode(string nodeId, out NodeInfo? nodeInfo)
+    public bool TryGetNode(string id, out NodeInfo? info) 
+        => _nodes.TryGetValue(id, out info);
+
+    public IEnumerable<NodeInfo> GetAllNodes() => _nodes.Values;
+
+    public bool RemoveNode(string id)
     {
-        return _nodes.TryGetValue(nodeId, out nodeInfo);
+        if (_nodes.TryRemove(id, out var info))
+        {
+            _ring.Remove(info);
+            return true;
+        }
+        return false;
     }
 
-    public IEnumerable<NodeInfo> GetAllNodes()
-    {
-        return _nodes.Values;
-    }
-    
-    public bool RemoveNode(string nodeId)
-    {
-        return _nodes.TryRemove(nodeId, out _);
-    }
-
+    public NodeInfo GetNodeByKey(string key) => _ring.GetNodeForKey(key);
 }

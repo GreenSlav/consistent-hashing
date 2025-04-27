@@ -26,12 +26,13 @@ namespace Core.Commands
         public override KeyBase[] AllowedKeys { get; } =
         {
             new DispatcherPortKey(),
-            new HashingNodePortKey(),   // порт, на котором слушает узел
+            new HashingNodePortKey(), // порт, на котором слушает узел
         };
 
         public override KeyBase[] RequiredKeys { get; } =
         {
             new DispatcherPortKey(),
+            new HashingNodePortKey(), // порт, на котором слушает узел
         };
 
         public override bool ValueIsRequired { get; } = false;
@@ -51,64 +52,66 @@ namespace Core.Commands
             if (KeyAndValues == null)
                 throw new Exception("Не переданы параметры для команды.");
 
-            // 1) порт диспетчера
-            var dispPortEntry = KeyAndValues.FirstOrDefault(x => x.Key.KeyName == CommandKey.Port);
-            if (dispPortEntry.Value == null || !int.TryParse(dispPortEntry.Value, out var dispPort))
-                throw new Exception("Неверно указан порт диспетчера.");
+            // 1) обязательный порт диспетчера
+            var dispPortEntry = KeyAndValues
+                .FirstOrDefault(x => x.Key.KeyName == CommandKey.Port);
+            if (dispPortEntry.Value == null
+                || !int.TryParse(dispPortEntry.Value, out var dispPort))
+            {
+                throw new Exception("Обязательный ключ --port указан неверно или отсутствует.");
+            }
 
-            // собираем адрес диспетчера
+            // 2) обязательный порт ноды
+            var nodePortEntry = KeyAndValues
+                .FirstOrDefault(x => x.Key.KeyName == CommandKey.NodePort);
+            if (nodePortEntry.Value == null
+                || !int.TryParse(nodePortEntry.Value, out var nodePort))
+            {
+                throw new Exception("Обязательный ключ --node-port указан неверно или отсутствует.");
+            }
+
+            // 3) создаём канал к диспетчеру
             var address = $"https://localhost:{dispPort}";
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             using var channel = GrpcChannel.ForAddress(address);
-            var client  = new Dispatcher.DispatcherClient(channel);
+            var client = new Dispatcher.DispatcherClient(channel);
 
-            // 2) пытаемся получить node_id из позиционного значения
-            string? nodeId = Value;
-
-            // 3) если не передали node_id, пробуем поиск по --node-port
-            if (string.IsNullOrEmpty(nodeId))
-            {
-                var nodePortEntry = KeyAndValues.FirstOrDefault(x => x.Key.KeyName == CommandKey.NodePort);
-                if (nodePortEntry.Value != null && int.TryParse(nodePortEntry.Value, out var nodePort))
-                {
-                    // вызываем ListNodes
-                    var listReply = await client.ListNodesAsync(new ListNodesRequest());
-                    var found = listReply.Nodes.FirstOrDefault(n => n.Port == nodePort);
-                    if (found != null)
-                    {
-                        nodeId = found.NodeId;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Узел на порту {nodePort} не найден в диспетчере.");
-                        return;
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(nodeId))
-            {
-                throw new Exception("Нужно указать либо node_id в качестве значения команды, либо --node-port.");
-            }
-
-            // 4) вызывем gRPC DeleteNode
+            // 4) ищем nodeId по порту
+            ListNodesResponse listReply;
             try
             {
-                var delReply = await client.DeleteNodeAsync(new DeleteNodeRequest { NodeId = nodeId });
-                if (delReply.Success)
-                {
-                    Console.WriteLine($"Узел {nodeId} успешно удалён: {delReply.Message}");
-                }
-                else
-                {
-                    Console.WriteLine($"Не удалось удалить узел {nodeId}: {delReply.Message}");
-                }
+                listReply = await client.ListNodesAsync(new ListNodesRequest());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при вызове ListNodes: {ex.Message}");
+                return;
+            }
+
+            var found = listReply.Nodes.FirstOrDefault(n => n.Port == nodePort);
+            if (found == null)
+            {
+                Console.WriteLine($"Узел на порту {nodePort} не найден в диспетчере.");
+                return;
+            }
+
+            var nodeId = found.NodeId;
+
+            // 5) удаляем ноду
+            DeleteNodeResponse delReply;
+            try
+            {
+                delReply = await client.DeleteNodeAsync(new DeleteNodeRequest { NodeId = nodeId });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка при вызове DeleteNode: {ex.Message}");
                 throw;
             }
+
+            if (delReply.Success)
+                Console.WriteLine($"Узел {nodeId} (порт {nodePort}) успешно удалён: {delReply.Message}");
+            else
+                Console.WriteLine($"Не удалось удалить узел {nodeId}: {delReply.Message}");
         }
     }
 }

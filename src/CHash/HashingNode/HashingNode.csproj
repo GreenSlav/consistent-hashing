@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="../ProtosInterfaceDispatcher/Protos/product.proto" GrpcServices="Server" />
+        <Protobuf Include="../ProtosInterfaceDispatcher.Shared/product.proto" GrpcServices="Server" />
     </ItemGroup>
 
     <ItemGroup>

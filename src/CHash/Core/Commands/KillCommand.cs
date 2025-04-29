@@ -67,7 +67,7 @@ public class KillCommand : CommandBase
             throw new Exception("Порт должен быть числовым значением.");
 
         // TODO: Исправить потом, сделать так чтобы по https все было
-        AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+        //AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
         
         // Формируем адрес для gRPC соединения
         string address = $"https://localhost:{port}";

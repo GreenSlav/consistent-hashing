@@ -11,7 +11,8 @@ public class ConsistentHashRing
     {
         for (int i = 0; i < _replicas; i++)
         {
-            int pos = HashUtils.ComputeHashCode(node.NodeId + "#" + i);
+            string hex = HashUtils.ComputeSha256Id(node.NodeId + "#" + i);
+            int pos = HashUtils.ComputeHashCode(hex);
             _positions[pos] = node;
         }
     }
@@ -20,7 +21,8 @@ public class ConsistentHashRing
     {
         for (int i = 0; i < _replicas; i++)
         {
-            int pos = HashUtils.ComputeHashCode(node.NodeId + "#" + i);
+            string hex = HashUtils.ComputeSha256Id(node.NodeId + "#" + i);
+            int pos = HashUtils.ComputeHashCode(hex);
             _positions.Remove(pos);
         }
     }
@@ -28,7 +30,6 @@ public class ConsistentHashRing
     public NodeInfo GetNodeForKey(string key)
     {
         if (_positions.Count == 0) throw new InvalidOperationException("Ring is empty");
-        //int hash = Hash32(key);
         int hash = HashUtils.ComputeHashCode(key);
         // ищём первый ключ >= hash, иначе берём первый в словаре
         foreach (var kv in _positions)

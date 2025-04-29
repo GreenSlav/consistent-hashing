@@ -98,7 +98,7 @@ namespace Dispatcher.Services
             }
 
             // 1) Получаем все данные с этой ноды
-            var address = $"https://localhost:{info!.Port}";
+            var address = $"http://localhost:{info!.Port}";
             using var oldCh = GrpcChannel.ForAddress(address);
             
             var orderClient    = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(oldCh);
@@ -119,7 +119,7 @@ namespace Dispatcher.Services
             {
                 // определяем целевую ноду
                 var target = _nodeRegistry.GetNodeByKey(order.Id);
-                var ch = GrpcChannel.ForAddress($"https://localhost:{target.Port}");
+                var ch = GrpcChannel.ForAddress($"http://localhost:{target.Port}");
                 var cli = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(ch);
 
                 await cli.CreateOrderAsync(new CreateOrderRequest {
@@ -134,7 +134,7 @@ namespace Dispatcher.Services
             foreach (var cust in customersResp.Customers)
             {
                 var target = _nodeRegistry.GetNodeByKey(cust.Id);
-                var ch = GrpcChannel.ForAddress($"https://localhost:{target.Port}");
+                var ch = GrpcChannel.ForAddress($"http://localhost:{target.Port}");
                 var cli = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(ch);
 
                 await cli.CreateCustomerAsync(new CreateCustomerRequest {
@@ -149,7 +149,7 @@ namespace Dispatcher.Services
             foreach (var prod in productsResp.Products)
             {
                 var target = _nodeRegistry.GetNodeByKey(prod.Id);
-                var ch     = GrpcChannel.ForAddress($"https://localhost:{target.Port}");
+                var ch     = GrpcChannel.ForAddress($"http://localhost:{target.Port}");
                 var cli    = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(ch);
 
                 await cli.CreateProductAsync(new CreateProductRequest {

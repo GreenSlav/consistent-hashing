@@ -12,9 +12,6 @@
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\customer.proto" GrpcServices="Both" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\order.proto" GrpcServices="Both" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Both" />
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Both" />
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Both" />
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Both" />
     </ItemGroup>
 
     <ItemGroup>

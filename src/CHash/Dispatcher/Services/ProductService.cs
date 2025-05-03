@@ -11,21 +11,25 @@ namespace Dispatcher.Services
     public class ProductService : ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceBase
     {
         private readonly NodeRegistry _nodeRegistry;
+        private readonly ILogger<OrderService> _logger;
 
-        public ProductService(NodeRegistry nodeRegistry)
+        public ProductService(NodeRegistry nodeRegistry, ILogger<OrderService> logger)
         {
             _nodeRegistry = nodeRegistry;
+            _logger = logger;
         }
 
         public override async Task<ProductDto> GetProduct(ProductIdRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
-            using var channel = GrpcChannel.ForAddress($"http://localhost:{node.Port}");
+            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
-            return await client.GetProductAsync(request);
+            var response = await client.GetProductAsync(request);
+            return response;
         }
 
-        public override Task<ProductDto> CreateProduct(CreateProductRequest request, ServerCallContext context)
+        public override async Task<ProductDto> CreateProduct(CreateProductRequest request, ServerCallContext context)
         {
             // 1) Сгенерировать детерминированный ID
             string idHex = HashUtils.ComputeSha256Id(request);
@@ -42,28 +46,34 @@ namespace Dispatcher.Services
                 Price = request.Price,
                 StockQuantity = request.StockQuantity
             };
+            
+            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
 
-            using var channel = GrpcChannel.ForAddress($"http://localhost:{node.Port}");
+
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
 
-            return client.CreateProductAsync(proxiedReq).ResponseAsync;
+            var response = await client.CreateProductAsync(proxiedReq).ResponseAsync;
+            return response;
         }
 
         public override async Task<ProductDto> UpdateProduct(UpdateProductRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
-            using var channel = GrpcChannel.ForAddress($"http://localhost:{node.Port}");
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
-            return await client.UpdateProductAsync(request);
+            var response = await client.UpdateProductAsync(request);
+            return response;
         }
 
         public override async Task<DeleteProductResponse> DeleteProduct(ProductIdRequest request,
             ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
-            using var channel = GrpcChannel.ForAddress($"http://localhost:{node.Port}");
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
-            return await client.DeleteProductAsync(request);
+            var response = await client.DeleteProductAsync(request);
+            return response;
         }
 
         public override async Task<ProductList> ListProducts(Empty request, ServerCallContext context)
@@ -72,9 +82,10 @@ namespace Dispatcher.Services
                 .GetAllNodes()
                 .Select(async n =>
                 {
-                    using var ch = GrpcChannel.ForAddress($"http://localhost:{n.Port}");
+                    using var ch = GrpcChannel.ForAddress($"https://localhost:{n.Port}");
                     var cli = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(ch);
-                    return await cli.ListProductsAsync(request);
+                    var response = await cli.ListProductsAsync(request);
+                    return response;
                 });
 
             var parts = await Task.WhenAll(tasks);

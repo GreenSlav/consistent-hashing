@@ -21,7 +21,8 @@ namespace Dispatcher.Services
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            return await client.GetCustomerAsync(request);
+            var response = await client.GetCustomerAsync(request);
+            return response;
         }
 
         public override async Task<CustomerDto> CreateCustomer(CreateCustomerRequest request, ServerCallContext context)
@@ -42,7 +43,8 @@ namespace Dispatcher.Services
             
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            return await client.CreateCustomerAsync(proxied);
+            var response = await client.CreateCustomerAsync(proxied);
+            return response;
         }
 
         public override async Task<CustomerDto> UpdateCustomer(UpdateCustomerRequest request, ServerCallContext context)
@@ -50,7 +52,8 @@ namespace Dispatcher.Services
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            return await client.UpdateCustomerAsync(request);
+            var response = await client.UpdateCustomerAsync(request);
+            return response;
         }
 
         public override async Task<DeleteCustomerResponse> DeleteCustomer(CustomerIdRequest request,
@@ -59,7 +62,8 @@ namespace Dispatcher.Services
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            return await client.DeleteCustomerAsync(request);
+            var response = await client.DeleteCustomerAsync(request);
+            return response;
         }
 
         public override async Task<CustomerList> ListCustomers(Empty request, ServerCallContext context)
@@ -72,7 +76,8 @@ namespace Dispatcher.Services
                 {
                     using var ch = GrpcChannel.ForAddress($"https://localhost:{nodeInfo.Port}");
                     var cli = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(ch);
-                    return await cli.ListCustomersAsync(request);
+                    var responseLocal = await cli.ListCustomersAsync(request);
+                    return responseLocal;
                 });
 
             var results = await Task.WhenAll(tasks);

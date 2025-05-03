@@ -11,18 +11,22 @@ namespace Dispatcher.Services
     public class OrderService : ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceBase
     {
         private readonly NodeRegistry _nodeRegistry;
+        private readonly ILogger<OrderService> _logger;
 
-        public OrderService(NodeRegistry nodeRegistry)
+        public OrderService(NodeRegistry nodeRegistry, ILogger<OrderService> logger)
         {
             _nodeRegistry = nodeRegistry;
+            _logger = logger;
         }
 
         public override async Task<OrderDto> GetOrder(OrderIdRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
+            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            return await client.GetOrderAsync(request);
+            var response = await client.GetOrderAsync(request);
+            return response;
         }
 
         public override async Task<OrderDto> CreateOrder(CreateOrderRequest request, ServerCallContext context)
@@ -39,10 +43,13 @@ namespace Dispatcher.Services
                 OrderDate   = request.OrderDate,
                 TotalAmount = request.TotalAmount
             };
+
+            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
             
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            return await client.CreateOrderAsync(proxied);
+            var response = await client.CreateOrderAsync(proxied);
+            return response;
         }
 
         public override async Task<OrderDto> UpdateOrder(UpdateOrderRequest request, ServerCallContext context)
@@ -50,7 +57,8 @@ namespace Dispatcher.Services
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            return await client.UpdateOrderAsync(request);
+            var response = await client.UpdateOrderAsync(request);
+            return response;
         }
 
         public override async Task<DeleteOrderResponse> DeleteOrder(OrderIdRequest request, ServerCallContext context)
@@ -58,7 +66,8 @@ namespace Dispatcher.Services
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
             var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            return await client.DeleteOrderAsync(request);
+            var response = await client.DeleteOrderAsync(request);
+            return response;
         }
 
         public override async Task<OrderList> ListOrders(Empty request, ServerCallContext context)
@@ -69,7 +78,8 @@ namespace Dispatcher.Services
                 {
                     using var ch = GrpcChannel.ForAddress($"https://localhost:{n.Port}");
                     var cli = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(ch);
-                    return await cli.ListOrdersAsync(request);
+                    var response = await cli.ListOrdersAsync(request);
+                    return response;
                 });
 
             var parts = await Task.WhenAll(tasks);

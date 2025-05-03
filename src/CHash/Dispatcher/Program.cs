@@ -11,7 +11,6 @@ builder.Services.AddSingleton<NodeRegistry>();
 var app = builder.Build();
 
 // Регистрируем gRPC сервис диспетчера (например, GreeterTestService)
-app.MapGrpcService<GreeterTestService>();
 app.MapGrpcService<DispatcherService>();
 app.MapGrpcService<ProductService>();
 app.MapGrpcService<OrderService>();

@@ -9,8 +9,6 @@ builder.Services.AddGrpc();
 
 var app = builder.Build();
 
-app.MapGrpcService<GreeterTestServiceImpl>();
-app.MapGrpcService<DispatcherServiceImpl>();
 app.MapGrpcService<ProductServiceImpl>();
 app.MapGrpcService<OrderServiceImpl>();
 app.MapGrpcService<CustomerServiceImpl>();

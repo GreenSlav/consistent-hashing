@@ -1,8 +1,7 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using ProtosInterfaceDispatcher.Protos;
 
+Console.WriteLine("Hello, World!");
 using var channel = GrpcChannel.ForAddress("https://localhost:8080");
 var client = new ProductService.ProductServiceClient(channel);
 Console.WriteLine("Creation:");

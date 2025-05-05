@@ -15,11 +15,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="../ProtosInterfaceDispatcher.Shared/product.proto" GrpcServices="Server" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Server" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_internal.proto" GrpcServices="Server" />
+
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Dispatcher\Dispatcher.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ProtosInterfaceDispatcher.Shared\ProtosInterfaceDispatcher.Shared.csproj" />
     </ItemGroup>
 
 </Project>

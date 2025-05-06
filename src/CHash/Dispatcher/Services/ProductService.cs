@@ -3,16 +3,12 @@ using Grpc.Net.Client;
 using Google.Protobuf.WellKnownTypes;
 using Dispatcher.Helpers;
 using ProtosInterfaceDispatcher.Protos;
-using ProtosInterfaceDispatcher.Protos.Internal;
-using DeleteProductResponse = ProtosInterfaceDispatcher.Protos.Internal.DeleteProductResponse;
-using ProductDto = ProtosInterfaceDispatcher.Protos.Internal.ProductDto;
-using ProductIdRequest = ProtosInterfaceDispatcher.Protos.Internal.ProductIdRequest;
-using ProductList = ProtosInterfaceDispatcher.Protos.Internal.ProductList;
-
+using External = ProtosInterfaceDispatcher.Protos.External;
+using Internal = ProtosInterfaceDispatcher.Protos.Internal;
 
 namespace Dispatcher.Services
 {
-    public class ProductService : ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceBase
+    public class ProductService : External.ProductService.ProductServiceBase
     {
         private readonly NodeRegistry _nodeRegistry;
         private readonly ILogger<ProductService> _logger;
@@ -23,66 +19,83 @@ namespace Dispatcher.Services
             _logger = logger;
         }
 
-        public override async Task<ProductDto> GetProduct(ProductIdRequest request, ServerCallContext context)
+        public override async Task<External.ProductDto> GetProduct(External.ProductIdRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
-            return await client.GetProductAsync(request);
+            var client = new Internal.ProductService.ProductServiceClient(channel);
+
+            var internalResp = await client.GetProductAsync(new Internal.ProductIdRequest { Id = request.Id });
+
+            return MapToExternal(internalResp);
         }
 
-        public override async Task<ProductDto> CreateProduct(
-            CreateProductRequestProxy request, ServerCallContext context)
+        public override async Task<External.ProductDto> CreateProduct(External.CreateProductRequest request, ServerCallContext context)
         {
             string idHex = HashUtils.ComputeSha256Id(request);
-            var node = _nodeRegistry.GetNodeByKey(idHex);
+            var node = GetTargetNodeByKey(idHex);
 
-            var proxyReq = new CreateProductRequestProxy
+            var internalReq = new Internal.CreateProductRequestProxy()
             {
-                Id = idHex,
-                Name = request.Name,
-                Price = request.Price,
+                Id            = idHex,
+                Name          = request.Name,
+                Price         = request.Price,
                 StockQuantity = request.StockQuantity
             };
 
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel);
-    
-            ProductDto internalResponse = await client.CreateProductAsync(proxyReq);
-            return internalResponse;        }
-        
-        public override async Task<ProductDto> UpdateProduct(ProductDto request,
-            ServerCallContext context)
-        {
-            var node = GetTargetNodeByKey(request.Id);
-            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
-            return await client.UpdateProductAsync(request);
+            var client = new Internal.ProductService.ProductServiceClient(channel);
+
+            var internalResp = await client.CreateProductAsync(internalReq);
+            return MapToExternal(internalResp);
         }
 
-        public override async Task<DeleteProductResponse> DeleteProduct(ProductIdRequest request, ServerCallContext context)
+        public override async Task<External.ProductDto> UpdateProduct(External.UpdateProductRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
+
+            var internalReq = new Internal.UpdateProductRequest
+            {
+                Id            = request.Id,
+                Name          = request.Name,
+                Price         = request.Price,
+                StockQuantity = request.StockQuantity
+            };
+
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
-            return await client.DeleteProductAsync(request);
+            var client = new Internal.ProductService.ProductServiceClient(channel);
+
+            var internalResp = await client.UpdateProductAsync(internalReq);
+            return MapToExternal(internalResp);
         }
 
-        public override async Task<ProductList> ListProducts(Empty request, ServerCallContext context)
+        public override async Task<External.DeleteProductResponse> DeleteProduct(External.ProductIdRequest request, ServerCallContext context)
+        {
+            var node = GetTargetNodeByKey(request.Id);
+
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
+            var client = new Internal.ProductService.ProductServiceClient(channel);
+
+            var internalResp = await client.DeleteProductAsync(new Internal.ProductIdRequest { Id = request.Id });
+
+            return new External.DeleteProductResponse { Success = internalResp.Success };
+        }
+
+        public override async Task<External.ProductList> ListProducts(Empty request, ServerCallContext context)
         {
             var tasks = _nodeRegistry.GetAllNodes().Select(async node =>
             {
                 using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-                var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
+                var client = new Internal.ProductService.ProductServiceClient(channel);
                 return await client.ListProductsAsync(request);
             });
 
             var responses = await Task.WhenAll(tasks);
 
-            var result = new ProductList();
+            var result = new External.ProductList();
             foreach (var response in responses)
             {
-                result.Products.AddRange(response.Products);
+                result.Products.AddRange(response.Products.Select(MapToExternal));
             }
 
             return result;
@@ -101,17 +114,16 @@ namespace Dispatcher.Services
                     "No available hashing nodes to route the request"));
             }
         }
-        
-        private static ProtosInterfaceDispatcher.Protos.ProductDto MapToExternal(ProductDto internalDto)
+
+        private static External.ProductDto MapToExternal(Internal.ProductDto internalDto)
         {
-            return new ProtosInterfaceDispatcher.Protos.ProductDto
+            return new External.ProductDto
             {
-                Id = internalDto.Id,
-                Name = internalDto.Name,
-                Price = internalDto.Price,
+                Id            = internalDto.Id,
+                Name          = internalDto.Name,
+                Price         = internalDto.Price,
                 StockQuantity = internalDto.StockQuantity
             };
         }
-
     }
 }

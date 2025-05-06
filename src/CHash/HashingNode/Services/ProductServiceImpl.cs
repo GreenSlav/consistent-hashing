@@ -1,33 +1,40 @@
-﻿using Grpc.Core;
-using ProtosInterfaceDispatcher.Protos.Internal;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using Internal = ProtosInterfaceDispatcher.Protos.Internal;
 
 namespace HashingNode.Services;
 
 /// <summary>
-/// Реализация gRPC-сервиса для управления продуктами.
-/// Соответствует контракту, определённому в product_internal.proto.
+/// Реализация gRPC-сервиса для работы с продуктами на hashing-ноде.
+/// Использует контракты из Internal (product_internal.proto).
 /// </summary>
-public class ProductServiceImpl : ProductService.ProductServiceBase
+public class ProductServiceImpl : Internal.ProductService.ProductServiceBase
 {
-    private static readonly ConcurrentDictionary<string, ProductDto> _productsStorage = new();
+    private static readonly ConcurrentDictionary<string, Internal.ProductDto> _productsStorage = new();
 
-    public override Task<ProductDto> CreateProduct(CreateProductRequestProxy request, ServerCallContext context)
+    /// <inheritdoc/>
+    public override Task<Internal.ProductDto> CreateProduct(
+        Internal.CreateProductRequestProxy request,
+        ServerCallContext context)
     {
-        var product = new ProductDto
+        var product = new Internal.ProductDto
         {
-            Id = request.Id,
-            Name = request.Name,
-            Price = request.Price,
-            StockQuantity = request.StockQuantity
+            Id             = request.Id,
+            Name           = request.Name,
+            Price          = request.Price,
+            StockQuantity  = request.StockQuantity
         };
 
         _productsStorage[product.Id] = product;
         return Task.FromResult(product);
     }
 
-    public override Task<ProductDto> GetProduct(ProductIdRequest request, ServerCallContext context)
+    /// <inheritdoc/>
+    public override Task<Internal.ProductDto> GetProduct(
+        Internal.ProductIdRequest request,
+        ServerCallContext context)
     {
         if (_productsStorage.TryGetValue(request.Id, out var product))
         {
@@ -38,7 +45,10 @@ public class ProductServiceImpl : ProductService.ProductServiceBase
             new Status(StatusCode.NotFound, $"Product {request.Id} not found"));
     }
 
-    public override Task<ProductDto> UpdateProduct(ProductDto request, ServerCallContext context)
+    /// <inheritdoc/>
+    public override Task<Internal.ProductDto> UpdateProduct(
+        Internal.UpdateProductRequest request,
+        ServerCallContext context)
     {
         if (!_productsStorage.ContainsKey(request.Id))
         {
@@ -46,19 +56,33 @@ public class ProductServiceImpl : ProductService.ProductServiceBase
                 new Status(StatusCode.NotFound, $"Product {request.Id} not found"));
         }
 
-        _productsStorage[request.Id] = request;
-        return Task.FromResult(request);
+        var updated = new Internal.ProductDto
+        {
+            Id             = request.Id,
+            Name           = request.Name,
+            Price          = request.Price,
+            StockQuantity  = request.StockQuantity
+        };
+
+        _productsStorage[request.Id] = updated;
+        return Task.FromResult(updated);
     }
 
-    public override Task<DeleteProductResponse> DeleteProduct(ProductIdRequest request, ServerCallContext context)
+    /// <inheritdoc/>
+    public override Task<Internal.DeleteProductResponse> DeleteProduct(
+        Internal.ProductIdRequest request,
+        ServerCallContext context)
     {
         var success = _productsStorage.TryRemove(request.Id, out _);
-        return Task.FromResult(new DeleteProductResponse { Success = success });
+        return Task.FromResult(new Internal.DeleteProductResponse { Success = success });
     }
 
-    public override Task<ProductList> ListProducts(Empty request, ServerCallContext context)
+    /// <inheritdoc/>
+    public override Task<Internal.ProductList> ListProducts(
+        Empty request,
+        ServerCallContext context)
     {
-        var response = new ProductList();
+        var response = new Internal.ProductList();
         response.Products.AddRange(_productsStorage.Values);
         return Task.FromResult(response);
     }

@@ -12,6 +12,13 @@ message CreateProductRequest {
   int32 stock_quantity = 3;
 }
 
+message UpdateProductRequest {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+  int32 stock_quantity = 4;
+}
+
 message ProductDto {
   string id = 1;
   string name = 2;
@@ -34,7 +41,7 @@ message DeleteProductResponse {
 service ProductService {
   rpc GetProduct(ProductIdRequest) returns (ProductDto);
   rpc CreateProduct(CreateProductRequest) returns (ProductDto);
-  rpc UpdateProduct(ProductDto) returns (ProductDto);
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductDto);
   rpc DeleteProduct(ProductIdRequest) returns (DeleteProductResponse);
   rpc ListProducts(google.protobuf.Empty) returns (ProductList);
 }

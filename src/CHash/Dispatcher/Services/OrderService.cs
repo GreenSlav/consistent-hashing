@@ -5,10 +5,12 @@ using Grpc.Net.Client;
 using Google.Protobuf.WellKnownTypes;
 using Dispatcher.Helpers;
 using ProtosInterfaceDispatcher.Protos;
+using External = ProtosInterfaceDispatcher.Protos.External;
+using Internal = ProtosInterfaceDispatcher.Protos.Internal;
 
 namespace Dispatcher.Services
 {
-    public class OrderService : ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceBase
+    public class OrderService : External.OrderService.OrderServiceBase
     {
         private readonly NodeRegistry _nodeRegistry;
         private readonly ILogger<OrderService> _logger;
@@ -19,24 +21,38 @@ namespace Dispatcher.Services
             _logger = logger;
         }
 
-        public override async Task<OrderDto> GetOrder(OrderIdRequest request, ServerCallContext context)
+        public override async Task<External.OrderDto> GetOrder(External.OrderIdRequest request, ServerCallContext context)
         {
+            // Выбираем ноду по Id
             var node = GetTargetNodeByKey(request.Id);
-            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
+            _logger.LogInformation("Routing GetOrder({OrderId}) to node on port {Port}", request.Id, node.Port);
+
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            var response = await client.GetOrderAsync(request);
-            return response;
+            var client = new Internal.OrderService.OrderServiceClient(channel);
+
+            // Проксируем запрос
+            var internalReq = new Internal.OrderIdRequest { Id = request.Id };
+            var internalResp = await client.GetOrderAsync(internalReq);
+
+            // Конвертируем в внешний DTO
+            return new External.OrderDto
+            {
+                Id          = internalResp.Id,
+                CustomerId  = internalResp.CustomerId,
+                OrderDate   = internalResp.OrderDate,
+                TotalAmount = internalResp.TotalAmount
+            };
         }
 
-        public override async Task<OrderDto> CreateOrder(CreateOrderRequest request, ServerCallContext context)
+        public override async Task<External.OrderDto> CreateOrder(External.CreateOrderRequest request, ServerCallContext context)
         {
-            // 1) Сериализуем весь запрос в hex-строку SHA256
+            // Генерируем детерминированный ID и выбираем ноду
             var keyHex = HashUtils.ComputeSha256Id(request);
-            // 2) Ищем по ней нужную ноду
-            var node = GetTargetNodeByKey(keyHex);
-            // 3) Проксируем запрос туда
-            var proxied = new CreateOrderRequest
+            var node   = GetTargetNodeByKey(keyHex);
+            _logger.LogInformation("Routing CreateOrder → node on port {Port}", node.Port);
+
+            // Формируем внутренний запрос с нашим Id
+            var internalReq = new Internal.CreateOrderRequest
             {
                 Id          = keyHex,
                 CustomerId  = request.CustomerId,
@@ -44,49 +60,82 @@ namespace Dispatcher.Services
                 TotalAmount = request.TotalAmount
             };
 
-            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
-            
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            var response = await client.CreateOrderAsync(proxied);
-            return response;
+            var client = new Internal.OrderService.OrderServiceClient(channel);
+            var internalResp = await client.CreateOrderAsync(internalReq);
+
+            // Внешний ответ повторяет поля
+            return new External.OrderDto
+            {
+                Id          = internalResp.Id,
+                CustomerId  = internalResp.CustomerId,
+                OrderDate   = internalResp.OrderDate,
+                TotalAmount = internalResp.TotalAmount
+            };
         }
 
-        public override async Task<OrderDto> UpdateOrder(UpdateOrderRequest request, ServerCallContext context)
+        public override async Task<External.OrderDto> UpdateOrder(External.UpdateOrderRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
+            _logger.LogInformation("Routing UpdateOrder({OrderId}) to node on port {Port}", request.Id, node.Port);
+
+            // Внутренний запрос
+            var internalReq = new Internal.UpdateOrderRequest
+            {
+                Id          = request.Id,
+                CustomerId  = request.CustomerId,
+                OrderDate   = request.OrderDate,
+                TotalAmount = request.TotalAmount
+            };
+
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            var response = await client.UpdateOrderAsync(request);
-            return response;
+            var client = new Internal.OrderService.OrderServiceClient(channel);
+            var internalResp = await client.UpdateOrderAsync(internalReq);
+
+            return new External.OrderDto
+            {
+                Id          = internalResp.Id,
+                CustomerId  = internalResp.CustomerId,
+                OrderDate   = internalResp.OrderDate,
+                TotalAmount = internalResp.TotalAmount
+            };
         }
 
-        public override async Task<DeleteOrderResponse> DeleteOrder(OrderIdRequest request, ServerCallContext context)
+        public override async Task<External.DeleteOrderResponse> DeleteOrder(External.OrderIdRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
+            _logger.LogInformation("Routing DeleteOrder({OrderId}) to node on port {Port}", request.Id, node.Port);
+
+            var internalReq = new Internal.OrderIdRequest { Id = request.Id };
+
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(channel);
-            var response = await client.DeleteOrderAsync(request);
-            return response;
+            var client = new Internal.OrderService.OrderServiceClient(channel);
+            var internalResp = await client.DeleteOrderAsync(internalReq);
+
+            return new External.DeleteOrderResponse { Success = internalResp.Success };
         }
 
-        public override async Task<OrderList> ListOrders(Empty request, ServerCallContext context)
+        public override async Task<External.OrderList> ListOrders(Empty request, ServerCallContext context)
         {
-            var tasks = _nodeRegistry
-                .GetAllNodes()
-                .Select(async n =>
-                {
-                    using var ch = GrpcChannel.ForAddress($"https://localhost:{n.Port}");
-                    var cli = new ProtosInterfaceDispatcher.Protos.OrderService.OrderServiceClient(ch);
-                    var response = await cli.ListOrdersAsync(request);
-                    return response;
-                });
+            var tasks = _nodeRegistry.GetAllNodes().Select(async n =>
+            {
+                using var ch = GrpcChannel.ForAddress($"https://localhost:{n.Port}");
+                var cli = new Internal.OrderService.OrderServiceClient(ch);
+                return await cli.ListOrdersAsync(request);
+            });
 
             var parts = await Task.WhenAll(tasks);
-            var result = new OrderList();
+            var result = new External.OrderList();
             foreach (var part in parts)
             {
-                result.Orders.AddRange(part.Orders);
+                // Конвертация каждого внутреннего OrderDto → внешний
+                result.Orders.AddRange(part.Orders.Select(o => new External.OrderDto
+                {
+                    Id          = o.Id,
+                    CustomerId  = o.CustomerId,
+                    OrderDate   = o.OrderDate,
+                    TotalAmount = o.TotalAmount
+                }));
             }
 
             return result;

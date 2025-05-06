@@ -1,6 +1,6 @@
 ﻿syntax = "proto3";
 
-option csharp_namespace = "ProtosInterfaceDispatcher.External";
+option csharp_namespace = "ProtosInterfaceDispatcher.Protos.External";
 
 import "google/protobuf/empty.proto";
 

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option csharp_namespace = "ProtosInterfaceDispatcher.Protos.External";
+
+import "google/protobuf/empty.proto";
+
+package customer;
+
+message CustomerDto {
+  string id = 1;
+  string full_name = 2;
+  string email = 3;
+  string phone_number = 4;
+  string created_at = 5;
+}
+
+message CustomerIdRequest {
+  string id = 1;
+}
+
+message CreateCustomerRequest {
+  string full_name = 1;
+  string email = 2;
+  string phone_number = 3;
+}
+
+message UpdateCustomerRequest {
+  string id = 1;
+  string full_name = 2;
+  string email = 3;
+  string phone_number = 4;
+}
+
+message DeleteCustomerResponse {
+  bool success = 1;
+}
+
+message CustomerList {
+  repeated CustomerDto customers = 1;
+}
+
+service CustomerService {
+  rpc GetCustomer(CustomerIdRequest) returns (CustomerDto);
+  rpc CreateCustomer(CreateCustomerRequest) returns (CustomerDto);
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (CustomerDto);
+  rpc DeleteCustomer(CustomerIdRequest) returns (DeleteCustomerResponse);
+  rpc ListCustomers(google.protobuf.Empty) returns (CustomerList);
+}

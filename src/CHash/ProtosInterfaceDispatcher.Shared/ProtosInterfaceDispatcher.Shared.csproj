@@ -16,6 +16,8 @@
         <Protobuf Include="product_external.proto" GrpcServices="None" />
         <Protobuf Include="order_external.proto" GrpcServices="None" />
         <Protobuf Include="order_internal.proto" GrpcServices="None" />
+        <Protobuf Include="customer_external.proto" GrpcServices="None" />
+        <Protobuf Include="customer_internal.proto" GrpcServices="None" />
     </ItemGroup>
 
 </Project>

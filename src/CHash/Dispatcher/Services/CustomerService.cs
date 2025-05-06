@@ -1,13 +1,20 @@
+using System.Linq;
 using System.Threading.Tasks;
-using Dispatcher.Helpers;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Google.Protobuf.WellKnownTypes;
+using Dispatcher.Helpers;
 using ProtosInterfaceDispatcher.Protos;
+using External = ProtosInterfaceDispatcher.Protos.External;
+using Internal = ProtosInterfaceDispatcher.Protos.Internal;
 
 namespace Dispatcher.Services
 {
-    public class CustomerService : ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceBase
+    /// <summary>
+    /// Прокси-сервис для CustomerService на диспетчере:
+    /// принимает External запросы, маршрутит на ноды по Internal контракту,
+    /// и возвращает External ответы.</summary>
+    public class CustomerService : External.CustomerService.CustomerServiceBase
     {
         private readonly NodeRegistry _nodeRegistry;
 
@@ -16,77 +23,131 @@ namespace Dispatcher.Services
             _nodeRegistry = nodeRegistry;
         }
 
-        public override async Task<CustomerDto> GetCustomer(CustomerIdRequest request, ServerCallContext context)
-        {
-            var node = GetTargetNodeByKey(request.Id);
-            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            var response = await client.GetCustomerAsync(request);
-            return response;
-        }
-
-        public override async Task<CustomerDto> CreateCustomer(CreateCustomerRequest request, ServerCallContext context)
-        {
-            // 1) Сериализуем весь запрос в hex-строку SHA256
-            var keyHex = HashUtils.ComputeSha256Id(request);
-            // 2) Ищем по ней нужную ноду
-            var node = GetTargetNodeByKey(keyHex);
-            // 3) Проксируем запрос туда
-            
-            var proxied = new CreateCustomerRequest
-            {
-                Id          = keyHex,       // <-- и здесь
-                FullName    = request.FullName,
-                Email       = request.Email,
-                PhoneNumber = request.PhoneNumber
-            };
-            
-            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            var response = await client.CreateCustomerAsync(proxied);
-            return response;
-        }
-
-        public override async Task<CustomerDto> UpdateCustomer(UpdateCustomerRequest request, ServerCallContext context)
-        {
-            var node = GetTargetNodeByKey(request.Id);
-            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            var response = await client.UpdateCustomerAsync(request);
-            return response;
-        }
-
-        public override async Task<DeleteCustomerResponse> DeleteCustomer(CustomerIdRequest request,
+        public override async Task<External.CustomerDto> GetCustomer(
+            External.CustomerIdRequest request,
             ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(channel);
-            var response = await client.DeleteCustomerAsync(request);
-            return response;
+            var client = new Internal.CustomerService.CustomerServiceClient(channel);
+
+            var internalReq  = new Internal.CustomerIdRequest { Id = request.Id };
+            var internalResp = await client.GetCustomerAsync(internalReq);
+
+            return new External.CustomerDto
+            {
+                Id          = internalResp.Id,
+                FullName    = internalResp.FullName,
+                Email       = internalResp.Email,
+                PhoneNumber = internalResp.PhoneNumber,
+                CreatedAt   = internalResp.CreatedAt
+            };
         }
 
-        public override async Task<CustomerList> ListCustomers(Empty request, ServerCallContext context)
+        public override async Task<External.CustomerDto> CreateCustomer(
+            External.CreateCustomerRequest request,
+            ServerCallContext context)
         {
-            var response = new CustomerList();
+            // 1) Генерируем детерминированный Id
+            var keyHex = HashUtils.ComputeSha256Id(request);
+            var node   = GetTargetNodeByKey(keyHex);
 
-            var tasks = _nodeRegistry
-                .GetAllNodes()
-                .Select(async nodeInfo =>
-                {
-                    using var ch = GrpcChannel.ForAddress($"https://localhost:{nodeInfo.Port}");
-                    var cli = new ProtosInterfaceDispatcher.Protos.CustomerService.CustomerServiceClient(ch);
-                    var responseLocal = await cli.ListCustomersAsync(request);
-                    return responseLocal;
-                });
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
+            var client = new Internal.CustomerService.CustomerServiceClient(channel);
 
-            var results = await Task.WhenAll(tasks);
-            foreach (var part in results)
+            // 2) Формируем внутренний запрос с нашим Id
+            var internalReq = new Internal.CreateCustomerRequest
             {
-                response.Customers.AddRange(part.Customers);
+                Id          = keyHex,
+                FullName    = request.FullName,
+                Email       = request.Email,
+                PhoneNumber = request.PhoneNumber
+            };
+
+            var internalResp = await client.CreateCustomerAsync(internalReq);
+
+            return new External.CustomerDto
+            {
+                Id          = internalResp.Id,
+                FullName    = internalResp.FullName,
+                Email       = internalResp.Email,
+                PhoneNumber = internalResp.PhoneNumber,
+                CreatedAt   = internalResp.CreatedAt
+            };
+        }
+
+        public override async Task<External.CustomerDto> UpdateCustomer(
+            External.UpdateCustomerRequest request,
+            ServerCallContext context)
+        {
+            var node = GetTargetNodeByKey(request.Id);
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
+            var client = new Internal.CustomerService.CustomerServiceClient(channel);
+
+            var internalReq = new Internal.UpdateCustomerRequest
+            {
+                Id          = request.Id,
+                FullName    = request.FullName,
+                Email       = request.Email,
+                PhoneNumber = request.PhoneNumber
+            };
+
+            var internalResp = await client.UpdateCustomerAsync(internalReq);
+
+            return new External.CustomerDto
+            {
+                Id          = internalResp.Id,
+                FullName    = internalResp.FullName,
+                Email       = internalResp.Email,
+                PhoneNumber = internalResp.PhoneNumber,
+                CreatedAt   = internalResp.CreatedAt
+            };
+        }
+
+        public override async Task<External.DeleteCustomerResponse> DeleteCustomer(
+            External.CustomerIdRequest request,
+            ServerCallContext context)
+        {
+            var node = GetTargetNodeByKey(request.Id);
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
+            var client = new Internal.CustomerService.CustomerServiceClient(channel);
+
+            var internalReq  = new Internal.CustomerIdRequest { Id = request.Id };
+            var internalResp = await client.DeleteCustomerAsync(internalReq);
+
+            return new External.DeleteCustomerResponse { Success = internalResp.Success };
+        }
+
+        public override async Task<External.CustomerList> ListCustomers(
+            Empty request,
+            ServerCallContext context)
+        {
+            var externalList = new External.CustomerList();
+
+            var tasks = _nodeRegistry.GetAllNodes().Select(async nodeInfo =>
+            {
+                using var ch  = GrpcChannel.ForAddress($"https://localhost:{nodeInfo.Port}");
+                var cli       = new Internal.CustomerService.CustomerServiceClient(ch);
+                return await cli.ListCustomersAsync(request);
+            });
+
+            var parts = await Task.WhenAll(tasks);
+            foreach (var part in parts)
+            {
+                foreach (var dto in part.Customers)
+                {
+                    externalList.Customers.Add(new External.CustomerDto
+                    {
+                        Id          = dto.Id,
+                        FullName    = dto.FullName,
+                        Email       = dto.Email,
+                        PhoneNumber = dto.PhoneNumber,
+                        CreatedAt   = dto.CreatedAt
+                    });
+                }
             }
 
-            return response;
+            return externalList;
         }
 
         private NodeInfo GetTargetNodeByKey(string key)

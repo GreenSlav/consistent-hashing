@@ -13,7 +13,7 @@
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\order.proto" GrpcServices="Both" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Both" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_external.proto" GrpcServices="Both" />
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_internal.proto" GrpcServices="Both   " />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_internal.proto" GrpcServices="Both" />
     </ItemGroup>
 
     <ItemGroup>

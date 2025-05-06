@@ -5,6 +5,6 @@ class Program
 {
     static async Task Main()
     {
-        await Tester.TestOrder();
+        await Tester.TestProduct();
     }
 }

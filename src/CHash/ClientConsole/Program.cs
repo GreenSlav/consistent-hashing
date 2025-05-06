@@ -1,58 +1,74 @@
-﻿using Grpc.Net.Client;
-using ProtosInterfaceDispatcher.Protos;
+﻿// ClientConsoleForOrderService.cs
+using System;
+using System.Threading.Tasks;
+using Grpc.Core;
+using Grpc.Net.Client;
+using ProtosInterfaceDispatcher.Protos.External;
 
-Console.WriteLine("Hello, World!");
-using var channel = GrpcChannel.ForAddress("https://localhost:8080");
-var client = new ProductService.ProductServiceClient(channel);
-Console.WriteLine("Creation:");
-var createdProduct = await client.CreateProductAsync(new CreateProductRequest
+class Program
 {
-    Name = "Buzz",
-    Price = 421,
-    StockQuantity = 690,
-});
+    static async Task Main()
+    {
+        Console.WriteLine("=== OrderService Demo ===");
 
-Console.WriteLine(createdProduct.Id);
-Console.WriteLine("\n\nGetting: ");
+        // 1) Создаём канал к диспетчеру
+        using var channel = GrpcChannel.ForAddress("https://localhost:8080");
+        var client = new OrderService.OrderServiceClient(channel);
 
-var savedProduct = await client.GetProductAsync(new ProductIdRequest()
-{
-    Id = createdProduct.Id
-});
+        // 2) Создаём новый заказ
+        Console.WriteLine("\n-- CreateOrder --");
+        var createResp = await client.CreateOrderAsync(new CreateOrderRequest
+        {
+            CustomerId  = "customer123",
+            OrderDate   = DateTime.UtcNow.ToString("O"),
+            TotalAmount = 123.45
+        });
+        Console.WriteLine($"Created Order ID: {createResp.Id}");
 
-Console.WriteLine(savedProduct.Name);
-Console.WriteLine(savedProduct.Price);
-Console.WriteLine(savedProduct.StockQuantity);
-Console.WriteLine("\n\nUpdating: ");
+        // 3) Читаем только что созданный заказ
+        Console.WriteLine("\n-- GetOrder --");
+        var getResp = await client.GetOrderAsync(new OrderIdRequest
+        {
+            Id = createResp.Id
+        });
+        Console.WriteLine($"CustomerId : {getResp.CustomerId}");
+        Console.WriteLine($"OrderDate  : {getResp.OrderDate}");
+        Console.WriteLine($"TotalAmount: {getResp.TotalAmount}");
 
+        // 4) Обновляем сумму заказа
+        Console.WriteLine("\n-- UpdateOrder --");
+        var updateResp = await client.UpdateOrderAsync(new UpdateOrderRequest
+        {
+            Id          = createResp.Id,
+            CustomerId  = getResp.CustomerId,
+            OrderDate   = getResp.OrderDate,
+            TotalAmount = getResp.TotalAmount + 50 // пример: прибавляем 50
+        });
+        Console.WriteLine($"Updated TotalAmount: {updateResp.TotalAmount}");
 
-var updatedProduct = await client.UpdateProductAsync(new UpdateProductRequest
-{
-    Id            = savedProduct.Id,
-    Name          = savedProduct.Name,
-    Price         = 9999999,
-    StockQuantity = savedProduct.StockQuantity
-});
+        // 5) Удаляем заказ
+        Console.WriteLine("\n-- DeleteOrder --");
+        var deleteResp = await client.DeleteOrderAsync(new OrderIdRequest
+        {
+            Id = createResp.Id
+        });
+        Console.WriteLine($"Delete success: {deleteResp.Success}");
 
-Console.WriteLine(updatedProduct.Id);
-Console.WriteLine(updatedProduct.Name);
-Console.WriteLine(updatedProduct.Price);
-Console.WriteLine(updatedProduct.StockQuantity);
-
-Console.WriteLine("\n\nDeleteing: ");
-
-var deletedProduct = await client.DeleteProductAsync(new ProductIdRequest()
-{
-    Id = updatedProduct.Id
-});
-
-Console.WriteLine("\n\nGetting after deletion: ");
-
-var getAfterDelete = await client.GetProductAsync(new ProductIdRequest()
-{
-    Id = updatedProduct.Id
-});
-
-Console.WriteLine(getAfterDelete.Name);
-Console.WriteLine(getAfterDelete.Price);
-Console.WriteLine(getAfterDelete.StockQuantity);
+        // 6) Пытаемся снова получить удалённый заказ
+        Console.WriteLine("\n-- GetOrder After Deletion --");
+        try
+        {
+            var afterDel = await client.GetOrderAsync(new OrderIdRequest
+            {
+                Id = createResp.Id
+            });
+            // Если придёт сюда — что-то не так
+            Console.WriteLine("ERROR: expected NotFound, got:");
+            Console.WriteLine($"  {afterDel.Id} / {afterDel.CustomerId} / {afterDel.TotalAmount}");
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            Console.WriteLine($"Order not found as expected: {ex.Status.Detail}");
+        }
+    }
+}

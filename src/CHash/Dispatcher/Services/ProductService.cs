@@ -1,19 +1,23 @@
-using System.Linq;
-using System.Threading.Tasks;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Google.Protobuf.WellKnownTypes;
 using Dispatcher.Helpers;
 using ProtosInterfaceDispatcher.Protos;
+using ProtosInterfaceDispatcher.Protos.Internal;
+using DeleteProductResponse = ProtosInterfaceDispatcher.Protos.Internal.DeleteProductResponse;
+using ProductDto = ProtosInterfaceDispatcher.Protos.Internal.ProductDto;
+using ProductIdRequest = ProtosInterfaceDispatcher.Protos.Internal.ProductIdRequest;
+using ProductList = ProtosInterfaceDispatcher.Protos.Internal.ProductList;
+
 
 namespace Dispatcher.Services
 {
-    public class ProductService : ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceBase
+    public class ProductService : ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceBase
     {
         private readonly NodeRegistry _nodeRegistry;
-        private readonly ILogger<OrderService> _logger;
+        private readonly ILogger<ProductService> _logger;
 
-        public ProductService(NodeRegistry nodeRegistry, ILogger<OrderService> logger)
+        public ProductService(NodeRegistry nodeRegistry, ILogger<ProductService> logger)
         {
             _nodeRegistry = nodeRegistry;
             _logger = logger;
@@ -22,77 +26,63 @@ namespace Dispatcher.Services
         public override async Task<ProductDto> GetProduct(ProductIdRequest request, ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
-            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
-            var response = await client.GetProductAsync(request);
-            return response;
+            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
+            return await client.GetProductAsync(request);
         }
 
-        public override async Task<ProductDto> CreateProduct(CreateProductRequest request, ServerCallContext context)
+        public override async Task<ProductDto> CreateProduct(
+            CreateProductRequestProxy request, ServerCallContext context)
         {
-            // 1) Сгенерировать детерминированный ID
             string idHex = HashUtils.ComputeSha256Id(request);
-
-            // 2) Выбрать ноду по этому же ключу
             var node = _nodeRegistry.GetNodeByKey(idHex);
 
-            // 3) Отправить запрос Create на нужную ноду,
-            //    но перед этим «перепаковать» request, установив Id:
-            var proxiedReq = new CreateProductRequest
+            var proxyReq = new CreateProductRequestProxy
             {
-                Id = idHex, // добавили поле Id в proto
+                Id = idHex,
                 Name = request.Name,
                 Price = request.Price,
                 StockQuantity = request.StockQuantity
             };
-            
-            _logger.LogInformation("\n\n\n!!!!!! Request received: {message}!!!!!!\n\n\n", node.Port);
-
 
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
-
-            var response = await client.CreateProductAsync(proxiedReq).ResponseAsync;
-            return response;
-        }
-
-        public override async Task<ProductDto> UpdateProduct(UpdateProductRequest request, ServerCallContext context)
-        {
-            var node = GetTargetNodeByKey(request.Id);
-            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
-            var response = await client.UpdateProductAsync(request);
-            return response;
-        }
-
-        public override async Task<DeleteProductResponse> DeleteProduct(ProductIdRequest request,
+            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel);
+    
+            ProductDto internalResponse = await client.CreateProductAsync(proxyReq);
+            return internalResponse;        }
+        
+        public override async Task<ProductDto> UpdateProduct(ProductDto request,
             ServerCallContext context)
         {
             var node = GetTargetNodeByKey(request.Id);
             using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
-            var client = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(channel);
-            var response = await client.DeleteProductAsync(request);
-            return response;
+            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
+            return await client.UpdateProductAsync(request);
+        }
+
+        public override async Task<DeleteProductResponse> DeleteProduct(ProductIdRequest request, ServerCallContext context)
+        {
+            var node = GetTargetNodeByKey(request.Id);
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
+            var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
+            return await client.DeleteProductAsync(request);
         }
 
         public override async Task<ProductList> ListProducts(Empty request, ServerCallContext context)
         {
-            var tasks = _nodeRegistry
-                .GetAllNodes()
-                .Select(async n =>
-                {
-                    using var ch = GrpcChannel.ForAddress($"https://localhost:{n.Port}");
-                    var cli = new ProtosInterfaceDispatcher.Protos.ProductService.ProductServiceClient(ch);
-                    var response = await cli.ListProductsAsync(request);
-                    return response;
-                });
-
-            var parts = await Task.WhenAll(tasks);
-            var result = new ProductList();
-            foreach (var part in parts)
+            var tasks = _nodeRegistry.GetAllNodes().Select(async node =>
             {
-                result.Products.AddRange(part.Products);
+                using var channel = GrpcChannel.ForAddress($"https://localhost:{node.Port}");
+                var client = new ProtosInterfaceDispatcher.Protos.Internal.ProductService.ProductServiceClient(channel); // <-- Internal.ProductService
+                return await client.ListProductsAsync(request);
+            });
+
+            var responses = await Task.WhenAll(tasks);
+
+            var result = new ProductList();
+            foreach (var response in responses)
+            {
+                result.Products.AddRange(response.Products);
             }
 
             return result;
@@ -111,5 +101,17 @@ namespace Dispatcher.Services
                     "No available hashing nodes to route the request"));
             }
         }
+        
+        private static ProtosInterfaceDispatcher.Protos.ProductDto MapToExternal(ProductDto internalDto)
+        {
+            return new ProtosInterfaceDispatcher.Protos.ProductDto
+            {
+                Id = internalDto.Id,
+                Name = internalDto.Name,
+                Price = internalDto.Price,
+                StockQuantity = internalDto.StockQuantity
+            };
+        }
+
     }
 }

@@ -18,8 +18,8 @@ public static class Tester
         Console.WriteLine("\n-- CreateCustomer --");
         var createResp = await client.CreateCustomerAsync(new External.CreateCustomerRequest
         {
-            FullName    = "Ivan Petrov",
-            Email       = "ivan.petrov@example.com",
+            FullName = "Ivan Petrov",
+            Email = "ivan.petrov@example.com",
             PhoneNumber = "+1234567890"
         });
         Console.WriteLine($"Created Customer ID: {createResp.Id}");
@@ -39,9 +39,9 @@ public static class Tester
         Console.WriteLine("\n-- UpdateCustomer --");
         var updateResp = await client.UpdateCustomerAsync(new External.UpdateCustomerRequest
         {
-            Id          = createResp.Id,
-            FullName    = getResp.FullName,
-            Email       = "ivan.newemail@example.com", // меняем email
+            Id = createResp.Id,
+            FullName = getResp.FullName,
+            Email = "ivan.newemail@example.com", // меняем email
             PhoneNumber = getResp.PhoneNumber
         });
         Console.WriteLine($"Updated Email: {updateResp.Email}");
@@ -84,8 +84,8 @@ public static class Tester
         Console.WriteLine("\n-- CreateOrder --");
         var createResp = await client.CreateOrderAsync(new External.CreateOrderRequest
         {
-            CustomerId  = "customer123",
-            OrderDate   = DateTime.UtcNow.ToString("O"),
+            CustomerId = "customer123",
+            OrderDate = DateTime.UtcNow.ToString("O"),
             TotalAmount = 123.45
         });
         Console.WriteLine($"Created Order ID: {createResp.Id}");
@@ -104,9 +104,9 @@ public static class Tester
         Console.WriteLine("\n-- UpdateOrder --");
         var updateResp = await client.UpdateOrderAsync(new External.UpdateOrderRequest
         {
-            Id          = createResp.Id,
-            CustomerId  = getResp.CustomerId,
-            OrderDate   = getResp.OrderDate,
+            Id = createResp.Id,
+            CustomerId = getResp.CustomerId,
+            OrderDate = getResp.OrderDate,
             TotalAmount = getResp.TotalAmount + 50 // пример: прибавляем 50
         });
         Console.WriteLine($"Updated TotalAmount: {updateResp.TotalAmount}");
@@ -139,69 +139,67 @@ public static class Tester
 
     public static async Task TestProduct()
     {
-    Console.WriteLine("=== ProductService Demo ===");
+        Console.WriteLine("=== ProductService Demo ===");
 
-    // 1) Создаём канал к диспетчеру
-    using var channel = GrpcChannel.ForAddress("https://localhost:8080");
-    var client = new External.ProductService.ProductServiceClient(channel);
+        // 1) Создаём канал к диспетчеру
+        using var channel = GrpcChannel.ForAddress("https://localhost:8080");
+        var client = new External.ProductService.ProductServiceClient(channel);
 
-    // 2) Создаём новый продукт
-    Console.WriteLine("\n-- CreateProduct --");
-    var createResp = await client.CreateProductAsync(new External.CreateProductRequest
-    {
-        Name          = "Gaming Laptop",
-        Price         = 1499.99,
-        StockQuantity = 10
-    });
-    Console.WriteLine($"Created Product ID: {createResp.Id}");
+        // 2) Создаём новый продукт
+        Console.WriteLine("\n-- CreateProduct --");
+        var createResp = await client.CreateProductAsync(new External.CreateProductRequest
+        {
+            Name = "Gaming Laptop",
+            Price = 1499.99,
+            StockQuantity = 10
+        });
+        Console.WriteLine($"Created Product ID: {createResp.Id}");
 
-    // 3) Получаем продукт
-    Console.WriteLine("\n-- GetProduct --");
-    var getResp = await client.GetProductAsync(new External.ProductIdRequest
-    {
-        Id = createResp.Id
-    });
-    Console.WriteLine($"Name         : {getResp.Name}");
-    Console.WriteLine($"Price        : {getResp.Price}");
-    Console.WriteLine($"StockQuantity: {getResp.StockQuantity}");
-
-    // 4) Обновляем продукт
-    Console.WriteLine("\n-- UpdateProduct --");
-    var updated = new External.UpdateProductRequest()
-    {
-        Id             = getResp.Id,
-        Name           = getResp.Name,
-        Price          = getResp.Price + 100, // повыше цену
-        StockQuantity  = getResp.StockQuantity + 5 // пополним склад
-    };
-    var updateResp = await client.UpdateProductAsync(updated);
-    Console.WriteLine($"Updated Price        : {updateResp.Price}");
-    Console.WriteLine($"Updated StockQuantity: {updateResp.StockQuantity}");
-
-    // 5) Удаляем продукт
-    Console.WriteLine("\n-- DeleteProduct --");
-    var deleteResp = await client.DeleteProductAsync(new External.ProductIdRequest
-    {
-        Id = createResp.Id
-    });
-    Console.WriteLine($"Delete success: {deleteResp.Success}");
-
-    // 6) Проверяем, что продукт удалён
-    Console.WriteLine("\n-- GetProduct After Deletion --");
-    try
-    {
-        var afterDel = await client.GetProductAsync(new External.ProductIdRequest
+        // 3) Получаем продукт
+        Console.WriteLine("\n-- GetProduct --");
+        var getResp = await client.GetProductAsync(new External.ProductIdRequest
         {
             Id = createResp.Id
         });
-        Console.WriteLine("ERROR: expected NotFound, got:");
-        Console.WriteLine($"  {afterDel.Id} / {afterDel.Name} / {afterDel.Price}");
-    }
-    catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
-    {
-        Console.WriteLine($"Product not found as expected: {ex.Status.Detail}");
-    }
-}
+        Console.WriteLine($"Name         : {getResp.Name}");
+        Console.WriteLine($"Price        : {getResp.Price}");
+        Console.WriteLine($"StockQuantity: {getResp.StockQuantity}");
 
+        // 4) Обновляем продукт
+        Console.WriteLine("\n-- UpdateProduct --");
+        var updated = new External.UpdateProductRequest()
+        {
+            Id = getResp.Id,
+            Name = getResp.Name,
+            Price = getResp.Price + 100, // повыше цену
+            StockQuantity = getResp.StockQuantity + 5 // пополним склад
+        };
+        var updateResp = await client.UpdateProductAsync(updated);
+        Console.WriteLine($"Updated Price        : {updateResp.Price}");
+        Console.WriteLine($"Updated StockQuantity: {updateResp.StockQuantity}");
 
+        // 5) Удаляем продукт
+        Console.WriteLine("\n-- DeleteProduct --");
+        var deleteResp = await client.DeleteProductAsync(new External.ProductIdRequest
+        {
+            Id = createResp.Id
+        });
+        Console.WriteLine($"Delete success: {deleteResp.Success}");
+
+        // 6) Проверяем, что продукт удалён
+        Console.WriteLine("\n-- GetProduct After Deletion --");
+        try
+        {
+            var afterDel = await client.GetProductAsync(new External.ProductIdRequest
+            {
+                Id = createResp.Id
+            });
+            Console.WriteLine("ERROR: expected NotFound, got:");
+            Console.WriteLine($"  {afterDel.Id} / {afterDel.Name} / {afterDel.Price}");
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            Console.WriteLine($"Product not found as expected: {ex.Status.Detail}");
+        }
+    }
 }

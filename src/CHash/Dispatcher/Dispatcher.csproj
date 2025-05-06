@@ -12,8 +12,8 @@
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\customer.proto" GrpcServices="Both" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\order.proto" GrpcServices="Both" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product.proto" GrpcServices="Both" />
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_external.proto" GrpcServices="Both" />
-        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_internal.proto" GrpcServices="Both" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_external.proto" GrpcServices="Server" />
+        <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\product_internal.proto" GrpcServices="Client" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\order_external.proto" GrpcServices="Server" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\order_internal.proto" GrpcServices="Client" />
         <Protobuf Include="..\ProtosInterfaceDispatcher.Shared\customer_external.proto" GrpcServices="Server" />

@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Internal = ProtosInterfaceDispatcher.Protos.Internal;
+using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace HashingNode.Services
 {
@@ -16,6 +18,9 @@ namespace HashingNode.Services
         // Хранилище внутренних DTO
         private static readonly ConcurrentDictionary<string, Internal.OrderDto> _ordersStorage 
             = new();
+
+        // Логгер через Serilog
+        private static readonly ILogger _logger = Log.ForContext<OrderServiceImpl>();
 
         /// <inheritdoc/>
         public override Task<Internal.OrderDto> CreateOrder(
@@ -31,6 +36,10 @@ namespace HashingNode.Services
             };
 
             _ordersStorage[newOrder.Id] = newOrder;
+
+            // Логируем создание заказа
+            _logger.Information("Заказ {OrderId} создан для клиента {CustomerId}", newOrder.Id, newOrder.CustomerId);
+
             return Task.FromResult(newOrder);
         }
 
@@ -41,11 +50,14 @@ namespace HashingNode.Services
         {
             if (_ordersStorage.TryGetValue(request.Id, out var order))
             {
+                // Заказ найден
+                _logger.Debug("Запрос на получение заказа {OrderId}, найдено", request.Id);
                 return Task.FromResult(order);
             }
 
-            throw new RpcException(
-                new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
+            // Заказ не найден
+            _logger.Warning("Заказ {OrderId} не найден при вызове метода GetOrder", request.Id);
+            throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
         }
 
         /// <inheritdoc/>
@@ -55,8 +67,9 @@ namespace HashingNode.Services
         {
             if (!_ordersStorage.ContainsKey(request.Id))
             {
-                throw new RpcException(
-                    new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
+                // Ошибка обновления
+                _logger.Warning("Попытка обновить несуществующий заказ {OrderId}", request.Id);
+                throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
             }
 
             var updated = new Internal.OrderDto
@@ -68,6 +81,10 @@ namespace HashingNode.Services
             };
 
             _ordersStorage[request.Id] = updated;
+
+            // Успешное обновление
+            _logger.Information("Заказ {OrderId} успешно обновлён", request.Id);
+
             return Task.FromResult(updated);
         }
 
@@ -78,11 +95,14 @@ namespace HashingNode.Services
         {
             if (_ordersStorage.TryRemove(request.Id, out _))
             {
+                // Успешное удаление
+                _logger.Information("Заказ {OrderId} успешно удалён", request.Id);
                 return Task.FromResult(new Internal.DeleteOrderResponse { Success = true });
             }
 
-            throw new RpcException(
-                new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
+            // Попытка удалить несуществующий заказ
+            _logger.Warning("Попытка удалить несуществующий заказ {OrderId}", request.Id);
+            throw new RpcException(new Status(StatusCode.NotFound, $"Order {request.Id} not found"));
         }
 
         /// <inheritdoc/>
@@ -92,6 +112,10 @@ namespace HashingNode.Services
         {
             var list = new Internal.OrderList();
             list.Orders.AddRange(_ordersStorage.Values);
+
+            // Логируем количество
+            _logger.Information("Запрошен список заказов. Всего: {Count}", list.Orders.Count);
+
             return Task.FromResult(list);
         }
     }

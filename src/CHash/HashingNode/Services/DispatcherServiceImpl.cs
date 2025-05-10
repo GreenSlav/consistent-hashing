@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
 using Dispatcher.Helpers;
 using Grpc.Core;
-using Microsoft.Extensions.Logging;
 using ProtosInterfaceDispatcher.Protos;
+using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace Dispatcher.Services
 {
@@ -12,30 +13,26 @@ namespace Dispatcher.Services
     public class DispatcherServiceImpl : ProtosInterfaceDispatcher.Protos.Dispatcher.DispatcherBase
     {
         private readonly NodeRegistry _nodeRegistry;
-        private readonly ILogger<DispatcherServiceImpl> _logger;
         private readonly string _defaultNodePath;
+        private static readonly ILogger _logger = Log.ForContext<DispatcherServiceImpl>();
 
-        public DispatcherServiceImpl(
-            NodeRegistry nodeRegistry,
-            ILogger<DispatcherServiceImpl> logger,
-            IConfiguration config)
+        public DispatcherServiceImpl(NodeRegistry nodeRegistry, IConfiguration config)
         {
             _nodeRegistry = nodeRegistry;
-            _logger = logger;
             _defaultNodePath = config["NodeSettings:DefaultNodePath"];
         }
 
         public override async Task<CreateNodeResponse> CreateNode(CreateNodeRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Creating new node on port {Port}", request.PreferredPort);
+            _logger.Information("Создание новой ноды на порту {Port}", request.PreferredPort);
 
-            var nodePath = string.IsNullOrWhiteSpace(request.NodePath) 
-                ? _defaultNodePath 
+            var nodePath = string.IsNullOrWhiteSpace(request.NodePath)
+                ? _defaultNodePath
                 : request.NodePath;
 
             if (!File.Exists(nodePath))
             {
-                _logger.LogError("Node executable not found at {Path}", nodePath);
+                _logger.Error("Файл исполняемой ноды не найден по пути {Path}", nodePath);
                 throw new RpcException(new Status(StatusCode.NotFound, "Node executable not found"));
             }
 
@@ -53,6 +50,7 @@ namespace Dispatcher.Services
 
                 if (process == null)
                 {
+                    _logger.Error("Не удалось запустить процесс ноды");
                     throw new RpcException(new Status(StatusCode.Internal, "Failed to start node process"));
                 }
 
@@ -64,8 +62,7 @@ namespace Dispatcher.Services
 
                 _nodeRegistry.AddNode(nodeInfo.NodeId, nodeInfo);
 
-                _logger.LogInformation("Node {NodeId} created successfully on port {Port}", 
-                    nodeInfo.NodeId, nodeInfo.Port);
+                _logger.Information("Нода {NodeId} успешно создана на порту {Port}", nodeInfo.NodeId, nodeInfo.Port);
 
                 return new CreateNodeResponse
                 {
@@ -77,19 +74,20 @@ namespace Dispatcher.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating node");
+                _logger.Error(ex, "Ошибка при создании ноды");
                 throw new RpcException(new Status(StatusCode.Internal, ex.Message));
             }
         }
 
         public override async Task<DeleteNodeResponse> DeleteNode(DeleteNodeRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Deleting node {NodeId}", request.NodeId);
+            _logger.Information("Удаление ноды {NodeId}", request.NodeId);
 
             try
             {
                 if (!_nodeRegistry.TryGetNode(request.NodeId, out var nodeInfo))
                 {
+                    _logger.Warning("Нода {NodeId} не найдена при попытке удаления", request.NodeId);
                     throw new RpcException(new Status(StatusCode.NotFound, "Node not found"));
                 }
 
@@ -100,17 +98,17 @@ namespace Dispatcher.Services
                         var process = Process.GetProcessById(pid);
                         process.Kill();
                         process.WaitForExit(1000);
+                        _logger.Information("Процесс {NodeId} завершён", request.NodeId);
                     }
                     catch (ArgumentException)
                     {
-                        _logger.LogWarning("Process {NodeId} already terminated", request.NodeId);
+                        _logger.Warning("Процесс {NodeId} уже завершён до удаления", request.NodeId);
                     }
                 }
 
-                // Используем новый метод TryRemove вместо RemoveNode
                 if (!_nodeRegistry.RemoveNode(request.NodeId))
                 {
-                    _logger.LogWarning("Node {NodeId} was not found in registry during removal", request.NodeId);
+                    _logger.Warning("Нода {NodeId} не была найдена в реестре при удалении", request.NodeId);
                 }
 
                 return new DeleteNodeResponse
@@ -121,7 +119,7 @@ namespace Dispatcher.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting node");
+                _logger.Error(ex, "Ошибка при удалении ноды");
                 throw new RpcException(new Status(StatusCode.Internal, ex.Message));
             }
         }
@@ -129,6 +127,8 @@ namespace Dispatcher.Services
         public override Task<ListNodesResponse> ListNodes(ListNodesRequest request, ServerCallContext context)
         {
             var nodes = _nodeRegistry.GetAllNodes();
+            _logger.Information("Запрошен список нод. Количество: {Count}", nodes.Count());
+
             var response = new ListNodesResponse();
             response.Nodes.AddRange(nodes);
             return Task.FromResult(response);
@@ -136,11 +136,10 @@ namespace Dispatcher.Services
 
         public override async Task<ShutdownResponse> Shutdown(ShutdownRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Shutdown initiated by {DispatcherId}", request.DispatcherId);
+            _logger.Information("Инициирована остановка диспетчером {DispatcherId}", request.DispatcherId);
 
             try
             {
-                // Убиваем все ноды
                 foreach (var node in _nodeRegistry.GetAllNodes())
                 {
                     if (int.TryParse(node.NodeId, out var pid))
@@ -148,18 +147,19 @@ namespace Dispatcher.Services
                         try
                         {
                             Process.GetProcessById(pid)?.Kill();
+                            _logger.Information("Процесс ноды {Pid} завершён", pid);
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogWarning(ex, "Error killing process {Pid}", pid);
+                            _logger.Warning(ex, "Ошибка при завершении процесса {Pid}", pid);
                         }
                     }
                 }
 
-                // Даем время на отправку ответа
                 _ = Task.Run(async () =>
                 {
                     await Task.Delay(500);
+                    _logger.Information("Завершение приложения инициировано");
                     Environment.Exit(0);
                 });
 
@@ -171,7 +171,7 @@ namespace Dispatcher.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during shutdown");
+                _logger.Error(ex, "Ошибка при остановке диспетчера");
                 throw new RpcException(new Status(StatusCode.Internal, ex.Message));
             }
         }

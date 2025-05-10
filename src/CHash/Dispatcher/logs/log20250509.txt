@@ -1,9 +1,0 @@
-2025-05-09 16:28:13.872 +03:00 [DBG] Hosting starting
-2025-05-09 16:28:14.151 +03:00 [DBG] Middleware configuration started with options: {AllowedHosts = *, AllowEmptyHosts = True, IncludeFailureMessage = True}
-2025-05-09 16:28:14.167 +03:00 [DBG] Wildcard detected, all requests with hosts will be allowed.
-2025-05-09 16:28:14.243 +03:00 [INF] Now listening on: http://localhost:5000
-2025-05-09 16:28:14.247 +03:00 [DBG] Loaded hosting startup assembly Dispatcher
-2025-05-09 16:28:14.252 +03:00 [INF] Application started. Press Ctrl+C to shut down.
-2025-05-09 16:28:14.257 +03:00 [INF] Hosting environment: Development
-2025-05-09 16:28:14.260 +03:00 [INF] Content root path: C:\Users\dimas\CHash\consistent-hashing\src\CHash\Dispatcher
-2025-05-09 16:28:14.264 +03:00 [DBG] Hosting started

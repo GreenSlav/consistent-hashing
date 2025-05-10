@@ -1,22 +1,31 @@
-
-using Dispatcher.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using HashingNode.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Настройка Serilog через конфигурацию в appsettings.json (опционально)
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console()
+    .WriteTo.File("logs/hashing_node_log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+// Использование Serilog как провайдера логгирования в ASP.NET Core
+builder.Host.UseSerilog(); 
+
+// Добавление gRPC-сервисов
 builder.Services.AddGrpc();
+// Можно добавить другие зависимости, если используются
 
 var app = builder.Build();
 
+// Регистрация gRPC-сервисов
 app.MapGrpcService<ProductServiceImpl>();
 app.MapGrpcService<OrderServiceImpl>();
 app.MapGrpcService<CustomerServiceImpl>();
 
-// Configure the HTTP request pipeline.
-//app.MapGrpcService<GreeterService>();
-app.MapGet("/",
-    () =>
-        "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+// Тестовая страница
+app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client.");
 
 app.Run();

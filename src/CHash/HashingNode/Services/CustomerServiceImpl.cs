@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Internal = ProtosInterfaceDispatcher.Protos.Internal;
+using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace HashingNode.Services
 {
@@ -14,15 +16,10 @@ namespace HashingNode.Services
     public class CustomerServiceImpl : Internal.CustomerService.CustomerServiceBase
     {
         // Thread-safe хранилище Internal.CustomerDto
-        private static readonly ConcurrentDictionary<string, Internal.CustomerDto> _customers
-            = new();
+        private static readonly ConcurrentDictionary<string, Internal.CustomerDto> _customers = new();
 
-        private readonly ILogger<CustomerServiceImpl> _logger;
-
-        public CustomerServiceImpl(ILogger<CustomerServiceImpl> logger)
-        {
-            _logger = logger;
-        }
+        // Логгер напрямую через Serilog
+        private static readonly ILogger _logger = Log.ForContext<CustomerServiceImpl>();
 
         /// <inheritdoc/>
         public override Task<Internal.CustomerDto> CreateCustomer(
@@ -39,7 +36,10 @@ namespace HashingNode.Services
             };
 
             _customers[dto.Id] = dto;
-            _logger.LogInformation("Created internal customer {CustomerId}", dto.Id);
+            
+            // Логируем создание пользователя
+            _logger.Information("Created internal customer {CustomerId}", dto.Id);
+
             return Task.FromResult(dto);
         }
 
@@ -53,7 +53,8 @@ namespace HashingNode.Services
                 return Task.FromResult(dto);
             }
 
-            _logger.LogWarning("Internal customer {CustomerId} not found", request.Id);
+            // Пользователь не найден
+            _logger.Warning("Internal customer {CustomerId} not found", request.Id);
             throw new RpcException(new Status(
                 StatusCode.NotFound,
                 $"Customer {request.Id} not found"));
@@ -66,7 +67,8 @@ namespace HashingNode.Services
         {
             if (!_customers.TryGetValue(request.Id, out var existing))
             {
-                _logger.LogWarning("Update failed: customer {CustomerId} not found", request.Id);
+                // Клиент не найден
+                _logger.Warning("Update failed: customer {CustomerId} not found", request.Id);
                 throw new RpcException(new Status(
                     StatusCode.NotFound,
                     $"Customer {request.Id} not found"));
@@ -78,11 +80,14 @@ namespace HashingNode.Services
                 FullName    = request.FullName,
                 Email       = request.Email,
                 PhoneNumber = request.PhoneNumber,
-                CreatedAt   = existing.CreatedAt // сохраняем дату создания
+                CreatedAt   = existing.CreatedAt
             };
 
             _customers[request.Id] = updated;
-            _logger.LogInformation("Updated internal customer {CustomerId}", request.Id);
+
+            // Успешное обновление
+            _logger.Information("Updated internal customer {CustomerId}", request.Id);
+
             return Task.FromResult(updated);
         }
 
@@ -93,11 +98,13 @@ namespace HashingNode.Services
         {
             if (_customers.TryRemove(request.Id, out _))
             {
-                _logger.LogInformation("Deleted internal customer {CustomerId}", request.Id);
+                // Успешное удаление
+                _logger.Information("Deleted internal customer {CustomerId}", request.Id);
                 return Task.FromResult(new Internal.DeleteCustomerResponse { Success = true });
             }
 
-            _logger.LogWarning("Delete failed: customer {CustomerId} not found", request.Id);
+            // Попытка удалить несуществующего клиента
+            _logger.Warning("Delete failed: customer {CustomerId} not found", request.Id);
             throw new RpcException(new Status(
                 StatusCode.NotFound,
                 $"Customer {request.Id} not found"));
@@ -110,7 +117,10 @@ namespace HashingNode.Services
         {
             var list = new Internal.CustomerList();
             list.Customers.AddRange(_customers.Values);
-            _logger.LogInformation("Listed {Count} internal customers", list.Customers.Count);
+
+            // Логируем количество записей
+            _logger.Information("Listed {Count} internal customers", list.Customers.Count);
+
             return Task.FromResult(list);
         }
     }
